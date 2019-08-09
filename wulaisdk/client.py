@@ -1,0 +1,115 @@
+import time
+import uuid
+import hashlib
+
+from wulaisdk.http import BaseRequest
+from wulaisdk import http_codes
+from wulaisdk.request import CommonRequest
+from wulaisdk.exceptions import ServerException, ClientException
+
+
+class WulaiClient:
+    def __init__(self, pubkey, secret, endpoint="https://openapi.wul.ai", api_version="v2"):
+        auth_headers = self.make_authentication(pubkey, secret)
+        self.auth_headers = auth_headers
+        self.endpoint = endpoint
+        self.api_version = api_version
+
+    def make_authentication(self, pubkey, secret):
+        headers = {}
+        timestamp = str(int(time.time()))
+        nonce = uuid.uuid4().hex
+        sign = hashlib.sha1((nonce + timestamp + secret).encode("utf-8")).hexdigest()
+        data = {
+            "pubkey": pubkey,
+            "sign": sign,
+            "nonce": nonce,
+            "timestamp": timestamp
+        }
+        for k, v in data.items():
+            headers["Api-Auth-" + k] = v
+        return headers
+
+    def get_headers(self, request):
+        headers = request.headers
+        headers.update(self.auth_headers)
+        return headers
+
+    def check_request(self, request):
+        if not isinstance(request, CommonRequest):
+            raise ClientException("SDK_INVALID_REQUEST", "The request is not a valid CommonRequest.")
+
+    def get_url(self, request):
+        url = self.endpoint + "/" + self.api_version + request.path
+        return url
+
+    # todo: 完善
+    def response_wrapper(self, response):
+        js = None
+        exception = None
+        if response is not None and http_codes.PARAMS_ERROR > response.status_code >= http_codes.OK:
+            js = response.json() or {}
+        elif response is not None and response.status_code >= http_codes.PARAMS_ERROR:
+            if response.status_code == 400:
+                try:
+                    err_msg = response.json()["message"]
+                except Exception:
+                    err_msg = "Please check the param rule."
+                exception = ServerException("Error params.", err_msg, response.status_code)
+            elif response.status_code == 401:
+                exception = ServerException("Invalid secret/pubkey",
+                                            "The secrect or pubkey is incorrect. Please check it",
+                                            response.status_code)
+            elif response.status_code == 405:
+                exception = ServerException("Method Not Allow",
+                                            "Please check the request method",
+                                            response.status_code)
+            else:
+                try:
+                    err_msg = response.text
+                except Exception:
+                    err_msg = "Sth error"
+                exception = ServerException("SDK_UNKNOWN_SERVER_ERROR",
+                                            err_msg,
+                                            response.status_code)
+
+        return js, exception
+
+    def handle_single_request(self, request):
+        self.check_request(request)
+        url = self.get_url(request)
+        headers = self.get_headers(request)
+        method = request.opts.get("method", "POST")
+        timeout = request.opts.get("timeout", 3)
+
+        r = BaseRequest(request.opts, self.endpoint)
+        if method.upper() == "POST":
+            resp = r.post(url, request.params, headers, timeout)
+        elif method.upper() == "GET":
+            resp = r.get(url, request.params, headers, timeout)
+        elif method.upper() == "PUT":
+            resp = r.put(url, request.params, headers, timeout)
+        elif method.upper() == "PATCH":
+            resp = r.patch(url, request.params, headers, timeout)
+        elif method.upper() == "HEAD":
+            resp = r.head(url, headers, timeout)
+        elif method.upper() == "DELETE":
+            resp = r.delete(url, headers, timeout)
+        else:
+            raise ClientException("Method Not Allow", "Please check the request method")
+        return self.response_wrapper(resp)
+
+    def process_common_request(self, request):
+        retries = request.opts.get("retry", 0)
+        while True:
+            body, exception = self.handle_single_request(request)
+            if body is not None:
+                retries = -1
+            else:
+                retries -= 1
+            if retries < 0:
+                break
+            time.sleep(0.1)
+        if exception:
+            raise exception
+        return body
