@@ -7,7 +7,7 @@ secret = ""
 
 client = WulaiClient(pubkey, secret)
 
-action = "user/create"
+action = "userCreate"
 params = {}
 opts = {
     "method": "POST",

@@ -82,7 +82,7 @@ class WulaiClient:
         method = request.opts.get("method", "POST")
         timeout = request.opts.get("timeout", 3)
 
-        r = BaseRequest(request.opts, self.endpoint)
+        r = BaseRequest(self.endpoint)
         if method.upper() == "POST":
             resp = r.post(url, request.params, headers, timeout)
         elif method.upper() == "GET":
