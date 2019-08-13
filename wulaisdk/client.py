@@ -14,6 +14,11 @@ class WulaiClient:
         self.secret = secret
         self.endpoint = endpoint
         self.api_version = api_version
+        self.check_api_version()
+
+    def check_api_version(self):
+        if self.api_version not in ["v1", "v2"]:
+            raise ClientException("SDK_INVALID_API_VERSION", "This api version is invalid, please check it.")
 
     def make_authentication(self, pubkey, secret):
         headers = {}
