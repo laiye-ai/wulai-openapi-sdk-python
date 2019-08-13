@@ -10,8 +10,8 @@ from wulaisdk.exceptions import ServerException, ClientException
 
 class WulaiClient:
     def __init__(self, pubkey, secret, endpoint="https://openapi.wul.ai", api_version="v2"):
-        auth_headers = self.make_authentication(pubkey, secret)
-        self.auth_headers = auth_headers
+        self.pubkey = pubkey
+        self.secret = secret
         self.endpoint = endpoint
         self.api_version = api_version
 
@@ -31,8 +31,9 @@ class WulaiClient:
         return headers
 
     def get_headers(self, request):
+        auth_headers = self.make_authentication(self.pubkey, self.secret)
         headers = request.headers
-        headers.update(self.auth_headers)
+        headers.update(auth_headers)
         return headers
 
     def check_request(self, request):
