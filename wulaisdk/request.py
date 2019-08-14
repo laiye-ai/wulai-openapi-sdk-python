@@ -1,4 +1,4 @@
-from wulaisdk.exceptions import ClientException
+from wulaisdk.exceptions import ClientException, ERR_INFO
 
 
 class CommonRequest:
@@ -43,7 +43,7 @@ class CommonRequest:
         elif self.action == "getHistoryRecord":
             path = "/msg/history"
         else:
-            raise ClientException("SDK_NOT_SUPPORT", "Please check your action")
+            raise ClientException("SDK_NOT_SUPPORT", ERR_INFO["SDK_NOT_SUPPORT"])
         self.path = path
 
     def check_params(self):

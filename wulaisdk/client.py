@@ -5,7 +5,7 @@ import hashlib
 from wulaisdk.http import BaseRequest
 from wulaisdk import http_codes
 from wulaisdk.request import CommonRequest
-from wulaisdk.exceptions import ServerException, ClientException
+from wulaisdk.exceptions import ServerException, ClientException, ERR_INFO
 
 
 class WulaiClient:
@@ -18,7 +18,7 @@ class WulaiClient:
 
     def check_api_version(self):
         if self.api_version not in ["v1", "v2"]:
-            raise ClientException("SDK_INVALID_API_VERSION", "This api version is invalid, please check it.")
+            raise ClientException("SDK_INVALID_API_VERSION", ERR_INFO["SDK_INVALID_API_VERSION"])
 
     def make_authentication(self, pubkey, secret):
         headers = {}
@@ -43,7 +43,7 @@ class WulaiClient:
 
     def check_request(self, request):
         if not isinstance(request, CommonRequest):
-            raise ClientException("SDK_INVALID_REQUEST", "The request is not a valid CommonRequest.")
+            raise ClientException("SDK_INVALID_REQUEST", ERR_INFO["SDK_INVALID_REQUEST"])
 
     def get_url(self, request):
         url = self.endpoint + "/" + self.api_version + request.path
@@ -60,16 +60,12 @@ class WulaiClient:
                 try:
                     err_msg = response.json()["message"]
                 except Exception:
-                    err_msg = "Please check the param rule."
-                exception = ServerException("Error params.", err_msg, response.status_code)
+                    err_msg = ERR_INFO["SDK_INVALID_PARAMS"]
+                exception = ClientException("SDK_INVALID_PARAMS", err_msg)
             elif response.status_code == 401:
-                exception = ServerException("Invalid secret/pubkey",
-                                            "The secrect or pubkey is incorrect. Please check it",
-                                            response.status_code)
+                exception = ClientException("SDK_INVALID_CREDENTIAL", ERR_INFO["SDK_INVALID_CREDENTIAL"])
             elif response.status_code == 405:
-                exception = ServerException("Method Not Allow",
-                                            "Please check the request method",
-                                            response.status_code)
+                exception = ServerException("SDK_METHOD_NOT_ALLOW", ERR_INFO["SDK_METHOD_NOT_ALLOW"])
             else:
                 try:
                     err_msg = response.text
@@ -102,7 +98,7 @@ class WulaiClient:
         elif method.upper() == "DELETE":
             resp = r.delete(url, headers, timeout)
         else:
-            raise ClientException("Method Not Allow", "Please check the request method")
+            raise ClientException("SDK_METHOD_NOT_ALLOW", ERR_INFO["SDK_METHOD_NOT_ALLOW"])
         return self.response_wrapper(resp)
 
     def process_common_request(self, request):

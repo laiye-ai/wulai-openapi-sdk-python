@@ -38,37 +38,15 @@ class ServerException(Exception):
         self.error_msg = msg
 
 
-class SDK_ENDPOINT_RESOLVING_ERROR(ClientException):
-    def __init__(self):
-        super().__init__(code=1, msg="ENDPOINT解析失败")
-
-
-class SDK_SERVER_UNREACHABLE(ClientException):
-    def __init__(self):
-        super().__init__(code=1, msg="无法连接服务器")
-
-
-class SDK_INVALID_REQUEST(ClientException):
-    def __init__(self):
-        super().__init__(code=1, msg="The request is not a valid CommonRequest.")
-
-
-class SDK_INVALID_CREDENTIAL(ClientException):
-    def __init__(self):
-        super().__init__(code=1, msg="验证信息错误")
-
-
-class SDK_INVALID_PARAMS(ClientException):
-    def __init__(self):
-        super().__init__(code=1, msg="参数错误")
-
-
-class SDK_NOT_SUPPORT(ClientException):
-    def __init__(self):
-        super().__init__(code=1, msg="不支持的SDK命令")
-
-
-class SDK_HTTP_ERROR(ClientException):
-    def __init__(self):
-        super().__init__(code=1, msg="http请求错误")
+ERR_INFO = {
+    "SDK_ENDPOINT_RESOLVING_ERROR": "ENDPOINT解析失败",
+    "SDK_SERVER_UNREACHABLE": "无法连接服务器",
+    "SDK_INVALID_REQUEST": "The request is not a valid CommonRequest.",
+    "SDK_INVALID_CREDENTIAL": "The secrect or pubkey is incorrect. Please check it",
+    "SDK_INVALID_PARAMS": "The param is incorrect. Please check it",
+    "SDK_NOT_SUPPORT": "Invalid action, please check it",
+    "SDK_HTTP_ERROR": "http请求错误",
+    "SDK_METHOD_NOT_ALLOW": "Method not allow, please check it.",
+    "SDK_INVALID_API_VERSION": "Invalid api version, please check it.",
+}
 
