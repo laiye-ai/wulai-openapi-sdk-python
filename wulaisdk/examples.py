@@ -1,9 +1,11 @@
+import os
+
 from wulaisdk.client import WulaiClient
 from wulaisdk.request import CommonRequest
 
 
-pubkey = ""
-secret = ""
+pubkey = os.getenv("PUBKEY", "")
+secret = os.getenv("SECRET", "")
 
 client = WulaiClient(pubkey, secret)
 
@@ -11,6 +13,7 @@ action = "userCreate"
 params = {}
 opts = {
     "method": "POST",
+    "headers": {},
     "timeout": 3,
     "retry": 0,
     "other": {}

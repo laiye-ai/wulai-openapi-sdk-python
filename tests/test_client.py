@@ -14,8 +14,8 @@ client = WulaiClient(pubkey, secret)
     ('userCreate',
      {
          "avatar_url": "",
-        "user_id": "shierlou",
-        "nickname": "测试用户-shierlou"
+         "user_id": "shierlou",
+         "nickname": "测试用户-shierlou"
      },
      {}),
     # ('2*10', 20),
