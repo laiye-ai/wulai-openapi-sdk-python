@@ -11,6 +11,7 @@ class CommonRequest:
         :param opts:
         """
         self.path = ""
+        self.headers = {}
         self.action = action
         self.params = params
         self.opts = opts
@@ -23,12 +24,26 @@ class CommonRequest:
         self.check_opts()
 
     def check_action(self):
-        if self.action == "getBotResponse":
-            path = "/msg/bot-response"
-        elif self.action == "userCreate":
+        # user
+        if self.action == "userCreate":
             path = "/user/create"
+        elif self.action == "userAttributeList":
+            path = "/user-attribute/list"
+        elif self.action == "userAtrributeCreate":
+            path = "/user/user-attribute/create"
+        # talk
+        elif self.action == "getBotResponse":
+            path = "/msg/bot-response"
+        elif self.action == "getKeywordBotResponse":
+            path = "/msg/bot-response/keyword"
+        elif self.action == "getTaskBotResponse":
+            path = "/msg/bot-response/task"
+        elif self.action == "getQABotResponse":
+            path = "/msg/bot-response/qa"
+        elif self.action == "getHistoryRecord":
+            path = "/msg/history"
         else:
-            raise ClientException("SDK_INVALID_OPTS", "Please check your action")
+            raise ClientException("SDK_NOT_SUPPORT", "Please check your action")
         self.path = path
 
     def check_params(self):

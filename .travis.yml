@@ -3,17 +3,18 @@ sudo: false
 language: python
 
 python:
-  - "3.3"
   - "3.4"
   - "3.5"
   - "3.6"
 
 install:
-  - pip install requests
-  - pip install pytest
+  - pip install -i https://pypi.doubanio.com/simple requests
+  - pip install -i https://pypi.doubanio.com/simple pytest
+#  - pip install -i https://pypi.doubanio.com/simple pytest-cov
 
 script:
   - pytest
+#  - pytest --cov=./
 
 #notifications:
 #    webhooks: https://oapi.dingtalk.com/robot/send?access_token=096ed387df243a6d60835aadeccc47165f3813bc7cb81cdd0cfeadfd28e3acc1
@@ -22,4 +23,4 @@ script:
 #    on_failure: always
 
 #after_success:
-#  - bash <(curl -s https://codecov.io/bash)
+#  - bash <(curl -s https://codecov.io/bash) -t $ COV_TOKEN
