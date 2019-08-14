@@ -7,7 +7,7 @@ class ClientException(Exception):
         self.error_msg = msg
 
     def __str__(self):
-        return f"{self.error_code}: {self.error_msg}"
+        return "{}: {}".format(self.error_code, self.error_msg)
 
     def set_error_code(self, code):
         self.error_code = code
@@ -26,7 +26,7 @@ class ServerException(Exception):
         self.http_status_code = http_status_code
 
     def __str__(self):
-        return f"{self.http_status_code} {self.error_code}: {self.error_msg}"
+        return "{} {}: {}".format(self.http_status_code, self.error_code, self.error_msg)
 
     def set_http_status_code(self, http_status_code):
         self.http_status_code = http_status_code
