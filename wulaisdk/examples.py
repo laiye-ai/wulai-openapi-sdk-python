@@ -7,7 +7,7 @@ from wulaisdk.request import CommonRequest
 pubkey = os.getenv("PUBKEY", "")
 secret = os.getenv("SECRET", "")
 
-client = WulaiClient(pubkey, secret)
+client = WulaiClient(pubkey, secret, debug=False)
 
 action = "userCreate"
 params = {}
