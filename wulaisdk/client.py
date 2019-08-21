@@ -17,14 +17,18 @@ logger.addHandler(handler)
 
 
 class WulaiClient:
-    def __init__(self, pubkey, secret, endpoint="https://openapi.wul.ai", api_version="v2", debug=False):
+    def __init__(self, pubkey: str, secret: str, endpoint: str="https://openapi.wul.ai",
+                 api_version: str="v2", debug: bool=False):
         self.pubkey = pubkey
         self.secret = secret
         self.endpoint = endpoint
         self.api_version = api_version
-        self.check_api_version()
         global DEBUG
         DEBUG = debug
+        self.prepare_request()
+
+    def prepare_request(self):
+        self.check_api_version()
         self.logger_level_init()
 
     def logger_level_init(self):
@@ -53,26 +57,23 @@ class WulaiClient:
             headers["Api-Auth-" + k] = v
         return headers
 
-    def get_headers(self, request):
-        auth_headers = self.make_authentication(self.pubkey, self.secret)
-        headers = request.headers
-        headers.update(auth_headers)
-        return headers
-
     def check_request(self, request):
         if not isinstance(request, CommonRequest):
             raise ClientException("SDK_INVALID_REQUEST", ERR_INFO["SDK_INVALID_REQUEST"])
 
     def get_url(self, request):
-        url = self.endpoint + "/" + self.api_version + request.path
+        url = self.endpoint + "/" + self.api_version + request.action
         return url
 
-    # todo: 完善
     def response_wrapper(self, response):
         js = None
         exception = None
         if response is not None and response.status_code == http_codes.OK:
-            js = response.json() or {}
+            try:
+                js = response.json()
+            except Exception:
+                # todo: which error
+                raise ClientException("SDK_RESPONSE_ERROR", "Please retry")
         elif response is not None and response.status_code >= http_codes.PARAMS_ERROR:
             try:
                 err_msg = response.json()["message"]
@@ -98,7 +99,9 @@ class WulaiClient:
     def handle_single_request(self, request):
         self.check_request(request)
         url = self.get_url(request)
-        headers = self.get_headers(request)
+        auth_headers = self.make_authentication(self.pubkey, self.secret)
+        request.update_headers(auth_headers)
+
         method = request.opts.get("method", "POST")
         timeout = request.opts.get("timeout", 3)
         logger.debug("Request received. Action: {}. Endpoint: {}. Params: {}. Opts: {}".format(
@@ -106,17 +109,12 @@ class WulaiClient:
 
         r = BaseRequest(self.endpoint)
         if method.upper() == "POST":
-            resp = r.post(url, request.params, headers, timeout)
-        elif method.upper() == "GET":
-            resp = r.get(url, request.params, headers, timeout)
-        elif method.upper() == "PUT":
-            resp = r.put(url, request.params, headers, timeout)
-        elif method.upper() == "PATCH":
-            resp = r.patch(url, request.params, headers, timeout)
-        elif method.upper() == "HEAD":
-            resp = r.head(url, headers, timeout)
-        elif method.upper() == "DELETE":
-            resp = r.delete(url, headers, timeout)
+            try:
+                resp = r.post(url, request.params, request.headers, timeout)
+            except IOError as e:
+                logger.error("HttpError occurred. Action:{} Version:{} ClientException:{}".format(
+                    request.action, self.api_version, str(e)))
+                raise ClientException("SDK_HTTP_ERROR", str(e))
         else:
             raise ClientException("SDK_METHOD_NOT_ALLOW", ERR_INFO["SDK_METHOD_NOT_ALLOW"])
         return self.response_wrapper(resp)

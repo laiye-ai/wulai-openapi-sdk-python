@@ -9,14 +9,14 @@ secret = os.getenv("SECRET", "")
 
 
 @pytest.mark.parametrize('debug,action,params,expected', [
-    (False, 'userCreate',
+    (False, '/user/create',
      {
          "avatar_url": "",
          "user_id": "shierlou",
          "nickname": "测试用户-shierlou"
      },
      {}),
-    (True, 'userCreate',
+    (True, '/user/create',
      {
          "avatar_url": "",
          "user_id": "shierlou",
@@ -29,7 +29,6 @@ def test_client(debug, action, params, expected):
         "method": "POST",
         "timeout": 3,
         "retry": 0,
-        "other": {}
     }
     client = WulaiClient(pubkey, secret, debug=debug)
     request = CommonRequest(action, params, opts)

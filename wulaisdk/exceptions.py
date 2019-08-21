@@ -45,7 +45,7 @@ ERR_INFO = {
     "SDK_INVALID_CREDENTIAL": "The secrect or pubkey is incorrect. Please check it",
     "SDK_INVALID_PARAMS": "The param is incorrect. Please check it",
     "SDK_NOT_SUPPORT": "Invalid action, please check it",
-    "SDK_HTTP_ERROR": "http请求错误",
+    "SDK_HTTP_ERROR": "http request error",
     "SDK_METHOD_NOT_ALLOW": "Method not allow, please check it.",
-    "SDK_INVALID_API_VERSION": "Invalid api version, please check it.",
+    "SDK_INVALID_API_VERSION": "Invalid api version, please check it."
 }
