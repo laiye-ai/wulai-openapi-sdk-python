@@ -131,7 +131,6 @@ class WulaiClient:
                     request.action, retries))
             if retries < 0:
                 break
-            time.sleep(0.1)
         if exception:
             raise exception
         logger.debug("Response received. Action: {}. Response-body: {}".format(request.action, body))
