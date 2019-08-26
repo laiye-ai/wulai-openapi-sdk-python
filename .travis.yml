@@ -14,7 +14,7 @@ install:
   - pip install -i https://pypi.doubanio.com/simple pytest-cov
 
 script:
-  - pytest
+  - pytest -v
   - pytest --cov=./
 
 #notifications:
@@ -24,4 +24,4 @@ script:
 #    on_failure: always
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash) -t $ COV_TOKEN
+  - bash <(curl -s https://codecov.io/bash) -t $COV_TOKEN

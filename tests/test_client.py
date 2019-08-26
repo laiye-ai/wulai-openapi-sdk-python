@@ -2,8 +2,8 @@ import os
 import pytest
 
 from wulaisdk.client import WulaiClient
-from wulaisdk.request import CommonRequest, CreateUserRequest, GetBotResponseRequest
-from wulaisdk.exceptions import ClientException, ServerException
+from wulaisdk.request import CommonRequest
+from wulaisdk.exceptions import ClientException
 
 pubkey = os.getenv("PUBKEY", "")
 secret = os.getenv("SECRET", "")
@@ -37,61 +37,44 @@ def test_client(debug, action, params, expected):
     assert resp == expected
 
 
-@pytest.mark.parametrize('debug,params,expected', [
-    (True,
-     {
-         "avatar_url": "",
-         "user_id": "shierlou",
-         "nickname": "测试用户-shierlou"
-     }, {}),
-    (False,
-     {
-         "user_id": "shierlou",
-         "nickname": "测试用户-shierlou"
-     }, {}),
-    (True,
-     {
-         "avatar_url": "",
-         "user_id": "shierlou",
-     }, {}),
-    (True,
-     {
-         "user_id": "shierlou",
-     }, {}),
+# createUser test
+@pytest.mark.parametrize('debug,user_id,avatar_url,nickname,expected', [
+    (True, "shierlou", "", "测试用户-shierlou", {}),
+    (True, "shierlou", "", "", {}),
 ])
-def test_create_user_normal(debug, params, expected):
-    opts = {
-        "method": "POST",
-        "timeout": 3,
-        "retry": 0,
-    }
+def test_create_user_normal_1(debug, user_id, avatar_url, nickname, expected):
     client = WulaiClient(pubkey, secret, debug=debug)
-    request = CreateUserRequest(params, opts)
-    resp = client.process_common_request(request)
+    resp = client.create_user(user_id, avatar_url, nickname)
     assert resp == expected
 
 
-@pytest.mark.parametrize('debug,params', [
-    (True,
-     {
-         "avatar_url": "",
-         "nickname": "测试用户-shierlou"
-     }),
-    (False,
-     {
-         "avatar_url": "",
-         "user_id": "",
-         "nickname": "测试用户-shierlou"
-     }),
+@pytest.mark.parametrize('debug,user_id,expected', [
+    (True, "shierlou", {}),
+    (True, "shierlou", {}),
 ])
-def test_create_user_error(debug, params):
-    opts = {
-        "method": "POST",
-        "timeout": 3,
-        "retry": 0,
-    }
+def test_create_user_normal_2(debug, user_id, expected):
     client = WulaiClient(pubkey, secret, debug=debug)
-    request = CreateUserRequest(params, opts)
+    resp = client.create_user(user_id)
+    assert resp == expected
+
+
+@pytest.mark.parametrize('debug,user_id', [
+    (True, ""),
+    (False, 123),
+])
+def test_create_user_error(debug, user_id):
+    client = WulaiClient(pubkey, secret, debug=debug)
     with pytest.raises(ClientException) as excinfo:
-        client.process_common_request(request)
+        client.create_user(user_id)
         assert excinfo.error_msg == "SDK_INVALID_PARAMS"
+
+
+# getBotResponse test
+@pytest.mark.parametrize('user_id,msg_body,extra,expected', [
+    ("shierlou", {"text": {"content": "你好"}}, "this is extra string",
+     {"is_dispatch": "", "suggested_response": {}, "msg_id": ""})
+])
+def test_get_bot_response_normal(user_id, msg_body, extra, expected):
+    client = WulaiClient(pubkey, secret, debug=True)
+    resp = client.get_bot_response(user_id, msg_body, extra)
+    assert set(resp.keys()) == set(expected.keys())
