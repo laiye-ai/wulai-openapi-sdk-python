@@ -29,3 +29,9 @@ class BaseRequest:
             self.init_session()
         resp = self._session.post(url, json=data, headers=headers, timeout=timeout, **kwargs)
         return resp
+
+    def get(self, url: str, params: dict, headers: dict, timeout: int=3, **kwargs):
+        if self._session is None:
+            self.init_session()
+        resp = self._session.get(url, params=params, headers=headers, timeout=timeout, **kwargs)
+        return resp

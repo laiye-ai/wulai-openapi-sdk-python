@@ -8,6 +8,8 @@ from wulaisdk import http_codes
 from wulaisdk.request import CommonRequest
 from wulaisdk.exceptions import ServerException, ClientException, ERR_INFO
 
+from requests.exceptions import ConnectionError, ConnectTimeout
+
 
 DEBUG = False
 
@@ -84,7 +86,6 @@ class WulaiClient:
             try:
                 js = response.json()
             except Exception:
-                # todo: which error
                 raise ClientException("SDK_RESPONSE_ERROR", "Please retry")
         elif response is not None and response.status_code >= http_codes.PARAMS_ERROR:
             try:
@@ -119,15 +120,21 @@ class WulaiClient:
         logger.debug("Request received. Action: {}. Endpoint: {}. Params: {}. Opts: {}".format(
             request.action, self.endpoint, request.params, request.opts))
 
-        if method.upper() == "POST":
-            try:
+        try:
+            if method.upper() == "POST":
                 resp = self._http.post(url, request.params, request.headers, timeout)
-            except IOError as e:
-                logger.error("HttpError occurred. Action:{} Version:{} ClientException:{}".format(
-                    request.action, self.api_version, str(e)))
-                raise ClientException("SDK_HTTP_ERROR", str(e))
-        else:
-            raise ClientException("SDK_METHOD_NOT_ALLOW", ERR_INFO["SDK_METHOD_NOT_ALLOW"])
+            elif method.upper() == "GET":
+                resp = self._http.get(url, request.params, request.headers, timeout)
+            else:
+                raise ClientException("SDK_METHOD_NOT_ALLOW", ERR_INFO["SDK_METHOD_NOT_ALLOW"])
+        except IOError as e:
+            logger.error("HttpError occurred. Action:{} Version:{} ClientException:{}".format(
+                request.action, self.api_version, str(e)))
+            raise ClientException("SDK_HTTP_ERROR", str(e))
+        except (ConnectTimeout, ConnectionError) as e:
+            logger.error("HttpError occurred. Action:{} Version:{} ClientException:{}".format(
+                request.action, self.api_version, str(e)))
+            raise ClientException("SDK_SERVER_UNREACHABLE", str(e))
         return self.response_wrapper(resp)
 
     def process_common_request(self, request):
@@ -140,7 +147,7 @@ class WulaiClient:
                 retries -= 1
                 logger.debug("Retry needed. Action: {}. Number of remaining retries: {}".format(
                     request.action, retries))
-            if retries < 0:
+            if retries <= 0:
                 break
         if exception:
             raise exception
