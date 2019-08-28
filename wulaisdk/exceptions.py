@@ -9,12 +9,6 @@ class ClientException(Exception):
     def __str__(self):
         return "{}: {}".format(self.error_code, self.error_msg)
 
-    def set_error_code(self, code):
-        self.error_code = code
-
-    def set_error_msg(self, msg):
-        self.error_msg = msg
-
 
 class ServerException(Exception):
     _error_type = "Server"
@@ -27,15 +21,6 @@ class ServerException(Exception):
 
     def __str__(self):
         return "{} {}: {}".format(self.http_status_code, self.error_code, self.error_msg)
-
-    def set_http_status_code(self, http_status_code):
-        self.http_status_code = http_status_code
-
-    def set_error_code(self, code):
-        self.error_code = code
-
-    def set_error_msg(self, msg):
-        self.error_msg = msg
 
 
 ERR_INFO = {
