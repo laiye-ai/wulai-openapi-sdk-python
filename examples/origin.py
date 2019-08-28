@@ -9,8 +9,12 @@ secret = os.getenv("SECRET", "")
 
 client = WulaiClient(pubkey, secret, debug=False)
 
-action = "userCreate"
-params = {}
+action = "/user/create"
+params = {
+    "user_id": "tet_user",
+    "avatar_url": "",
+    "nickname": "testUser"
+}
 opts = {
     "method": "POST",
     "timeout": 3,
