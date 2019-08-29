@@ -22,6 +22,19 @@ class WulaiClient:
     def __init__(self, pubkey: str, secret: str, endpoint: str="https://openapi.wul.ai",
                  api_version: str="v2", debug: bool=False, pool=None, pool_connections: int=10, pool_maxsize: int=10,
                  max_retries: int=3):
+        """
+        client
+        :param pubkey:
+        :param secret:
+        :param endpoint:
+        :param api_version:
+        :param debug:
+        :param pool: connection pool. Each client instance has its own pool by default.
+        Also you could create one on 'connection_pool_init' method and pass in arguments if you wanna a global pool.
+        :param pool_connections:
+        :param pool_maxsize:
+        :param max_retries:
+        """
         self.pubkey = pubkey
         self.secret = secret
         self.endpoint = endpoint
@@ -45,12 +58,18 @@ class WulaiClient:
                            pool_maxsize=pool_maxsize, max_retries=max_retries)
         return pool
 
-    def logger_level_init(self):
+    @staticmethod
+    def logger_level_init():
         global logger
         if DEBUG:
             logger.setLevel(logging.DEBUG)
         else:
             logger.setLevel(logging.ERROR)
+
+    @staticmethod
+    def add_logger_handler(log_handler):
+        global logger
+        logger.addHandler(log_handler)
 
     def check_api_version(self):
         if self.api_version not in ["v1", "v2"]:
@@ -126,6 +145,8 @@ class WulaiClient:
             elif method.upper() == "GET":
                 resp = self._http.get(url, request.params, request.headers, timeout)
             else:
+                logger.error("SDK_METHOD_NOT_ALLOW: {}. method: {}".format(
+                    ERR_INFO["SDK_METHOD_NOT_ALLOW"], method.upper()))
                 raise ClientException("SDK_METHOD_NOT_ALLOW", ERR_INFO["SDK_METHOD_NOT_ALLOW"])
         except IOError as e:
             logger.error("HttpError occurred. Action:{} Version:{} ClientException:{}".format(
@@ -150,11 +171,22 @@ class WulaiClient:
             if retries <= 0:
                 break
         if exception:
+            logger.error("{}:{}. Action:{} Version:{} Exception:".format(
+                exception.error_code, exception.error_msg, request.action, self.api_version))
             raise exception
         logger.debug("Response received. Action: {}. Response-body: {}".format(request.action, body))
         return body
 
-    def create_user(self, user_id: str, avatar_url: str="", nickname: str=""):
+    @staticmethod
+    def opts_create(di: dict):
+        opts = {
+            "method": di.get("method", "POST"),
+            "retry": di.get("retry", 2),
+            "timeout": di.get("timeout", 3)
+        }
+        return opts
+
+    def create_user(self, user_id: str, avatar_url: str="", nickname: str="", **kwargs):
         """
         创建用户
         创建用户后可以实现多轮对话机器人、从用户维度统计分析、吾来工作台人工收发消息、用户维护的消息记录查询与搜索等功能。
@@ -169,16 +201,13 @@ class WulaiClient:
             "avatar_url": avatar_url,
             "nickname": nickname
         }
-        opts = {
-            "method": "POST",
-            "retry": 2
-        }
+        opts = self.opts_create(kwargs)
 
         request = CommonRequest("/user/create", params, opts)
         body = self.process_common_request(request)
         return body
 
-    def get_bot_response(self, user_id: str, msg_body: dict, extra: str=""):
+    def get_bot_response(self, user_id: str, msg_body: dict, extra: str="", **kwargs):
         """
         获取机器人回复
         输入用户的文本消息内容，吾来机器人理解并做出响应，返回最合适的答复给用户。
@@ -204,8 +233,6 @@ class WulaiClient:
             "recognition": str(语音识别文本结果)
             }
         }
-        事件消息
-        todo
         图文消息
         {
         "share_link": {
@@ -222,16 +249,13 @@ class WulaiClient:
             "msg_body": msg_body,
             "extra": extra
         }
-        opts = {
-            "method": "POST",
-            "retry": 2
-        }
+        opts = self.opts_create(kwargs)
 
         request = CommonRequest("/msg/bot-response", params, opts)
         body = self.process_common_request(request)
         return body
 
-    def create_user_user_attribute(self, user_id: str, user_attribute_user_attribute_value: list):
+    def create_user_user_attribute(self, user_id: str, user_attribute_user_attribute_value: list, **kwargs):
         """
         给用户添加属性值
         该接口用于给用户添加或修改用户属性，包括预设属性和自定义属性。
@@ -246,10 +270,7 @@ class WulaiClient:
             "user_id": user_id,
             "user_attribute_user_attribute_value": user_attribute_user_attribute_value
         }
-        opts = {
-            "method": "POST",
-            "retry": 2
-        }
+        opts = self.opts_create(kwargs)
 
         request = CommonRequest("/user/user-attribute/create", params, opts)
         body = self.process_common_request(request)

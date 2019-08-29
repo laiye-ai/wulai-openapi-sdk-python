@@ -1,3 +1,6 @@
+"""
+自定义接口地址，参数
+"""
 import os
 
 from wulaisdk.client import WulaiClient
@@ -9,8 +12,12 @@ secret = os.getenv("SECRET", "")
 
 client = WulaiClient(pubkey, secret, debug=False)
 
-action = "userCreate"
-params = {}
+action = "/user/create"
+params = {
+    "user_id": "tet_user",
+    "avatar_url": "",
+    "nickname": "testUser"
+}
 opts = {
     "method": "POST",
     "timeout": 3,
