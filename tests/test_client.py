@@ -59,7 +59,7 @@ def test_common_request(debug, action, params, expected):
          "nickname": "测试用户-shierlou"
      },
      {
-         "method": "DELETE",
+         "method": "GET",
          "timeout": 3,
          "retry": 0,
      }),

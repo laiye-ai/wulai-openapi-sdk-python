@@ -1,3 +1,6 @@
+"""
+自定义接口地址，参数
+"""
 import os
 
 from wulaisdk.client import WulaiClient

@@ -1,3 +1,6 @@
+"""
+基础对话场景
+"""
 import os
 
 from wulaisdk.client import WulaiClient

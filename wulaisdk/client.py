@@ -29,7 +29,8 @@ class WulaiClient:
         :param endpoint:
         :param api_version:
         :param debug:
-        :param pool:
+        :param pool: connection pool. Each client instance has its own pool by default.
+        Also you could create one on 'connection_pool_init' method and pass in arguments if you wanna a global pool.
         :param pool_connections:
         :param pool_maxsize:
         :param max_retries:
