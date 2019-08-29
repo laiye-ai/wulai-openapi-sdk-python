@@ -1,5 +1,6 @@
 import os
 import pytest
+import logging
 
 from wulaisdk.client import WulaiClient
 from wulaisdk.request import CommonRequest
@@ -7,6 +8,7 @@ from wulaisdk.exceptions import ClientException
 
 pubkey = os.getenv("PUBKEY", "")
 secret = os.getenv("SECRET", "")
+log_dir_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 @pytest.mark.parametrize('debug,action,params,expected', [
@@ -25,7 +27,7 @@ secret = os.getenv("SECRET", "")
      },
      {}),
 ])
-def test_client(debug, action, params, expected):
+def test_common_request(debug, action, params, expected):
     opts = {
         "method": "POST",
         "timeout": 3,
@@ -80,6 +82,16 @@ def test_api_version(debug, user_id, avatar_url, nickname):
         client = WulaiClient(pubkey, secret, debug=debug, api_version="v3")
         client.create_user(user_id, avatar_url, nickname)
         assert excinfo.error_code == "SDK_INVALID_API_VERSION"
+
+
+# test log FileHandler
+@pytest.mark.parametrize('handler', [
+    logging.FileHandler(log_dir_path + '/logs/wulaisdk.log')
+])
+def test_log_handler(handler):
+    client = WulaiClient(pubkey, secret, debug=True)
+    client.add_logger_handler(handler)
+    client.create_user("shierlou")
 
 
 # test invalid credential
