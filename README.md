@@ -40,5 +40,14 @@ msg_body = {
 }
 extra = ""
 resp = client.get_bot_response(user_id, msg_body, extra)
+```
 
+#### 场景示例
+详见examples
+```
+基础对话场景 - base_talk.py
+个性化对话场景 - personalized_talk.py
+
+如封装后的api调用不满足需求
+可参考origin.py自定义请求
 ```
