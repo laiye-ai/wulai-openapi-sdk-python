@@ -51,3 +51,17 @@ resp = client.get_bot_response(user_id, msg_body, extra)
 如封装后的api调用不满足需求
 可参考origin.py自定义请求
 ```
+
+
+#### 常用接口
+```
+client = WulaiClient(pubkey, secret)
+
+# 创建用户
+client.create_user()
+# 获取机器人回复
+client.get_bot_response()
+# 添加用户属性值
+client.create_user_user_attribute()
+
+```
