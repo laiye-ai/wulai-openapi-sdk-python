@@ -195,7 +195,7 @@ def test_get_bot_response_normal(user_id, msg_body, extra, expected):
 
 # syncMessage test
 @pytest.mark.parametrize('user_id,msg_body,msg_ts', [
-    ("shierlou", {"text": {"content": "测试message_sync"}}, f"{int(time.time()*1000)}")
+    ("shierlou", {"text": {"content": "测试message_sync"}}, str(int(time.time()*1000)))
 ])
 def test_sync_message(user_id, msg_body, msg_ts):
     client = WulaiClient(pubkey, secret, debug=True)
