@@ -7,7 +7,6 @@ from wulaisdk.http import BaseRequest
 from wulaisdk import http_codes
 from wulaisdk.request import CommonRequest
 from wulaisdk.exceptions import ServerException, ClientException, ERR_INFO
-from wulaisdk.response import BotResponse
 
 from requests.exceptions import ConnectionError, ConnectTimeout
 
@@ -257,7 +256,6 @@ class WulaiClient:
         request = CommonRequest("/msg/bot-response", params, opts)
         body = self.process_common_request(request)
         return body
-        # return BotResponse(**body)
 
     def create_user_user_attribute(self, user_id: str, user_attribute_user_attribute_value: list, **kwargs):
         """
