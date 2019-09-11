@@ -14,7 +14,9 @@ from requests.exceptions import ConnectionError, ConnectTimeout
 DEBUG = False
 
 logger = logging.getLogger(__name__)
+formatter = logging.Formatter('%(asctime)s %(process)d %(thread)d %(levelname)s %(message)s')
 handler = logging.StreamHandler()
+handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
@@ -273,5 +275,273 @@ class WulaiClient:
         opts = self.opts_create(kwargs)
 
         request = CommonRequest("/user/user-attribute/create", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def get_keyword_bot_response(self, user_id: str, msg_body: dict, extra: str="", **kwargs):
+        """
+        获取关键字机器人回复
+        关键字机器人输入用户的文本消息内容，吾来机器人理解并做出响应，返回最合适的关键字机器人回复答复给用户。
+        :param user_id: str (用户唯一标识)
+        :param msg_body: dict (消息体格式，任意选择一种消息类型（文本/图片/语音/视频/文件/图文/自定义消息）填充)
+        :param extra: str (自定义字段)
+        msg_body:
+        文本消息
+        {"text": {"content"【required】: str}}
+        图片消息
+        {"image": {"resource_url"【required】: str}}
+        自定义消息logg
+        {"custom": {"content"【required】: str}}
+        视频消息
+        {"video": {"resource_url"【required】: str(资源链接), "thumb": str(缩略图), "description": str(描述), "title": str(标题)}}
+        文件消息
+        {"file": {"file_name": "str", "resource_url"【required】: "str"}}
+        语音消息
+        {
+        "voice": {
+            "resource_url"【required】: str,
+            "type": "AMR"(default AMR, one of AMR PCM WAV OPUS SPEEX MP3),
+            "recognition": str(语音识别文本结果)
+            }
+        }
+        图文消息
+        {
+        "share_link": {
+            "description": str(文字描述),
+            "destination_url"【required】: str(链接目标地址),
+            "cover_url"【required】: str(封面图片地址),
+            "title"【required】: str(链接的文字标题)
+            }
+        }
+        :return:
+        """
+        params = {
+            "user_id": user_id,
+            "msg_body": msg_body,
+            "extra": extra
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/msg/bot-response/keyword", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def get_qa_bot_response(self, user_id: str, msg_body: dict, extra: str="", **kwargs):
+        """
+        获取问答机器人回复
+        问答机器人输入用户的文本消息内容，吾来机器人理解并做出响应，返回最合适的问答机器人回复答复给用户。
+        :param user_id: str (用户唯一标识)
+        :param msg_body: dict (消息体格式，任意选择一种消息类型（文本/图片/语音/视频/文件/图文/自定义消息）填充)
+        :param extra: str (自定义字段)
+        msg_body:
+        文本消息
+        {"text": {"content"【required】: str}}
+        图片消息
+        {"image": {"resource_url"【required】: str}}
+        自定义消息
+        {"custom": {"content"【required】: str}}
+        视频消息
+        {"video": {"resource_url"【required】: str(资源链接), "thumb": str(缩略图), "description": str(描述), "title": str(标题)}}
+        文件消息
+        {"file": {"file_name": "str", "resource_url"【required】: "str"}}
+        语音消息
+        {
+        "voice": {
+            "resource_url"【required】: str,
+            "type": "AMR"(default AMR, one of AMR PCM WAV OPUS SPEEX MP3),
+            "recognition": str(语音识别文本结果)
+            }
+        }
+        图文消息
+        {
+        "share_link": {
+            "description": str(文字描述),
+            "destination_url"【required】: str(链接目标地址),
+            "cover_url"【required】: str(封面图片地址),
+            "title"【required】: str(链接的文字标题)
+            }
+        }
+        :return:
+        """
+        params = {
+            "user_id": user_id,
+            "msg_body": msg_body,
+            "extra": extra
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/msg/bot-response/qa", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def get_task_bot_response(self, user_id: str, msg_body: dict, extra: str="", **kwargs):
+        """
+        获取任务机器人回复
+        任务机器人输入用户的文本消息内容，吾来机器人理解并做出响应，返回最合适的任务机器人回复答复给用户。
+        :param user_id: str (用户唯一标识)
+        :param msg_body: dict (消息体格式，任意选择一种消息类型（文本/图片/语音/视频/文件/图文/自定义消息）填充)
+        :param extra: str (自定义字段)
+        msg_body:
+        文本消息
+        {"text": {"content"【required】: str}}
+        图片消息
+        {"image": {"resource_url"【required】: str}}
+        自定义消息
+        {"custom": {"content"【required】: str}}
+        视频消息
+        {"video": {"resource_url"【required】: str(资源链接), "thumb": str(缩略图), "description": str(描述), "title": str(标题)}}
+        文件消息
+        {"file": {"file_name": "str", "resource_url"【required】: "str"}}
+        语音消息
+        {
+        "voice": {
+            "resource_url"【required】: str,
+            "type": "AMR"(default AMR, one of AMR PCM WAV OPUS SPEEX MP3),
+            "recognition": str(语音识别文本结果)
+            }
+        }
+        图文消息
+        {
+        "share_link": {
+            "description": str(文字描述),
+            "destination_url"【required】: str(链接目标地址),
+            "cover_url"【required】: str(封面图片地址),
+            "title"【required】: str(链接的文字标题)
+            }
+        }
+        :return:
+        """
+        params = {
+            "user_id": user_id,
+            "msg_body": msg_body,
+            "extra": extra
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/msg/bot-response/task", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def sync_message(self, user_id: str, msg_body: dict, msg_ts: str, extra: str="", **kwargs):
+        """
+        同步发给用户的消息
+        如果机器人接入第三方消息渠道，需要把发给用户的所有消息同步给吾来，这样才可以在吾来查看到全部消息记录。
+        :param user_id: str (用户唯一标识)
+        :param msg_body: dict (消息体格式，任意选择一种消息类型（文本/图片/语音/视频/文件/图文/自定义消息）填充)
+        :param msg_ts: str (消息毫秒级时间戳)
+        :param extra: str (自定义字段)
+        msg_body:
+        文本消息
+        {"text": {"content"【required】: str}}
+        图片消息
+        {"image": {"resource_url"【required】: str}}
+        自定义消息
+        {"custom": {"content"【required】: str}}
+        视频消息
+        {"video": {"resource_url"【required】: str(资源链接), "thumb": str(缩略图), "description": str(描述), "title": str(标题)}}
+        文件消息
+        {"file": {"file_name": "str", "resource_url"【required】: "str"}}
+        语音消息
+        {
+        "voice": {
+            "resource_url"【required】: str,
+            "type": "AMR"(default AMR, one of AMR PCM WAV OPUS SPEEX MP3),
+            "recognition": str(语音识别文本结果)
+            }
+        }
+        图文消息
+        {
+        "share_link": {
+            "description": str(文字描述),
+            "destination_url"【required】: str(链接目标地址),
+            "cover_url"【required】: str(封面图片地址),
+            "title"【required】: str(链接的文字标题)
+            }
+        }
+        :return:
+        """
+        params = {
+            "user_id": user_id,
+            "msg_body": msg_body,
+            "msg_ts": msg_ts,
+            "extra": extra
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/msg/sync", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def receive_message(self, user_id: str, msg_body: dict, third_msg_id: str="", extra: str="", **kwargs):
+        """
+        接收用户发的消息
+        如果机器人接入第三方消息渠道，需要把用户发的所有消息同步给吾来，可以实现机器人全自动交互场景（参考异步基础对话、异步定制对话）。
+        :param user_id: str (用户唯一标识)
+        :param msg_body: dict (消息体格式，任意选择一种消息类型（文本/图片/语音/视频/文件/图文/自定义消息）填充)
+        :param third_msg_id: str  (接入方唯一msg_id，保证1分钟内的幂等性)
+        :param extra: str (自定义字段)
+        msg_body:
+        文本消息
+        {"text": {"content"【required】: str}}
+        图片消息
+        {"image": {"resource_url"【required】: str}}
+        自定义消息
+        {"custom": {"content"【required】: str}}
+        视频消息
+        {"video": {"resource_url"【required】: str(资源链接), "thumb": str(缩略图), "description": str(描述), "title": str(标题)}}
+        文件消息
+        {"file": {"file_name": "str", "resource_url"【required】: "str"}}
+        语音消息
+        {
+        "voice": {
+            "resource_url"【required】: str,
+            "type": "AMR"(default AMR, one of AMR PCM WAV OPUS SPEEX MP3),
+            "recognition": str(语音识别文本结果)
+            }
+        }
+        图文消息
+        {
+        "share_link": {
+            "description": str(文字描述),
+            "destination_url"【required】: str(链接目标地址),
+            "cover_url"【required】: str(封面图片地址),
+            "title"【required】: str(链接的文字标题)
+            }
+        }
+        :return:
+        """
+        params = {
+            "user_id": user_id,
+            "msg_body": msg_body,
+            "third_msg_id": third_msg_id,
+            "extra": extra
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/msg/receive", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def get_message_history(self, user_id: str, num: int, direction: str="BACKWARD", msg_id: str="", **kwargs):
+        """
+        查询历史消息
+        获取与指定用户发生的历史对话消息。
+        :param user_id: str (用户唯一标识)
+        :param num: int  (一次获取消息的数目 -> [1, 50])
+        :param direction: str (翻页方向)
+            BACKWARD: 向旧的消息翻页，查询比传入msg_id更小的消息
+            FORWARD: 先新的消息翻页，查询比传入msg_id更大的消息
+        :param msg_id: str (从这个msg_id开始查询（结果包含此条消息）；为空时查询最新的消息)
+        :return:
+        """
+        params = {
+            "user_id": user_id,
+            "num": num,
+            "direction": direction,
+            "msg_id": msg_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/msg/history", params, opts)
         body = self.process_common_request(request)
         return body

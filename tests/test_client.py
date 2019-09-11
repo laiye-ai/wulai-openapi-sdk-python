@@ -1,4 +1,5 @@
 import os
+import time
 import pytest
 import logging
 
@@ -10,7 +11,7 @@ pubkey = os.getenv("PUBKEY", "")
 secret = os.getenv("SECRET", "")
 log_dir_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
+# todo: 测试图片返回
 @pytest.mark.parametrize('debug,action,params,expected', [
     (False, '/user/create',
      {
@@ -160,3 +161,63 @@ def test_create_user_user_attribute_normal(user_id, user_attribute_user_attribut
     client = WulaiClient(pubkey, secret, debug=True)
     resp = client.create_user_user_attribute(user_id, user_attribute_user_attribute_value)
     assert resp == expected
+
+
+# getKeyWordBotResponse test
+@pytest.mark.parametrize('user_id,msg_body,expected', [
+    ("shierlou", {"text": {"content": "关键词测试"}}, "哈哈哈，这是关键词😃")
+])
+def test_get_keyword_bot_response_normal(user_id, msg_body, expected):
+    client = WulaiClient(pubkey, secret, debug=True)
+    resp = client.get_keyword_bot_response(user_id, msg_body)
+    assert resp["keyword_suggested_response"][0]["response"][0]["msg_body"]["text"]["content"] == expected
+
+
+# getQABotResponse test
+@pytest.mark.parametrize('user_id,msg_body,extra,expected', [
+    ("shierlou", {"text": {"content": "吃了吗"}}, "this is extra string", "服务你第一，吃饭第二，请问有什么可以帮助你的吗？")
+])
+def test_get_qa_bot_response_normal(user_id, msg_body, extra, expected):
+    client = WulaiClient(pubkey, secret, debug=True)
+    resp = client.get_qa_bot_response(user_id, msg_body, extra)
+    assert resp["qa_suggested_response"][0]["response"][0]["msg_body"]["text"]["content"] == expected
+
+
+# getTaskBotResponse test
+@pytest.mark.parametrize('user_id,msg_body,extra', [
+    ("shierlou", {"text": {"content": "我想查尺码"}}, "this is extra string")
+])
+def test_get_bot_response_normal(user_id, msg_body, extra):
+    client = WulaiClient(pubkey, secret, debug=True)
+    resp = client.get_task_bot_response(user_id, msg_body, extra)
+    assert "text" in resp["task_suggested_response"][0]["response"][0]["msg_body"].keys()
+
+
+# syncMessage test
+@pytest.mark.parametrize('user_id,msg_body,msg_ts', [
+    ("shierlou", {"text": {"content": "测试message_sync"}}, str(int(time.time()*1000)))
+])
+def test_sync_message(user_id, msg_body, msg_ts):
+    client = WulaiClient(pubkey, secret, debug=True)
+    resp = client.sync_message(user_id, msg_body, msg_ts)
+    assert "msg_id" in resp
+
+
+# receiveMessage test
+@pytest.mark.parametrize('user_id,msg_body', [
+    ("shierlou", {"text": {"content": "测试receive_message"}})
+])
+def test_receive_message(user_id, msg_body):
+    client = WulaiClient(pubkey, secret, debug=True)
+    resp = client.receive_message(user_id, msg_body)
+    assert "msg_id" in resp
+
+
+# getMessageHistory test
+@pytest.mark.parametrize('user_id,num', [
+    ("shierlou", 50)
+])
+def test_receive_message(user_id, num):
+    client = WulaiClient(pubkey, secret, debug=True)
+    resp = client.get_message_history(user_id, num)
+    assert set(resp.keys()) == {"msg", "has_more"}
