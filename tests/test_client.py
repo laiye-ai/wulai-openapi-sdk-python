@@ -184,13 +184,13 @@ def test_get_qa_bot_response_normal(user_id, msg_body, extra, expected):
 
 
 # getTaskBotResponse test
-@pytest.mark.parametrize('user_id,msg_body,extra,expected', [
-    ("shierlou", {"text": {"content": "我想查尺码"}}, "this is extra string", "请您复制商品链接地址发送给我")
+@pytest.mark.parametrize('user_id,msg_body,extra', [
+    ("shierlou", {"text": {"content": "我想查尺码"}}, "this is extra string")
 ])
-def test_get_bot_response_normal(user_id, msg_body, extra, expected):
+def test_get_bot_response_normal(user_id, msg_body, extra):
     client = WulaiClient(pubkey, secret, debug=True)
     resp = client.get_task_bot_response(user_id, msg_body, extra)
-    assert resp["task_suggested_response"][0]["response"][0]["msg_body"]["text"]["content"] == expected
+    assert "text" in resp["task_suggested_response"][0]["response"][0]["msg_body"].keys()
 
 
 # syncMessage test
