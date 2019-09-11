@@ -15,7 +15,9 @@ from requests.exceptions import ConnectionError, ConnectTimeout
 DEBUG = False
 
 logger = logging.getLogger(__name__)
+formatter = logging.Formatter('%(asctime)s %(process)d %(thread)d %(levelname)s %(message)s')
 handler = logging.StreamHandler()
+handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
