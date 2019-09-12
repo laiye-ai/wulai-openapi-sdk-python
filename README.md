@@ -49,10 +49,10 @@ resp = client.get_bot_response(user_id, msg_body, extra)
 个性化对话场景 - personalized_talk.py
 ```
 
-[常用接口]("https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/API.md")  
-[日志处理方式]("https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/LOG.md")  
-[超时重试处理方式]("https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/TIMEOUT.md")  
-[CommonRequest调用方式]("https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/COMMON.md")  
-[回调类接口实现]("https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/CALLBACK.md")  
-[错误处理方法]("https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/ERROR.md")  
-[待实现方法]("https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/TODO.md")  
+[常用接口](https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/API.md)  
+[日志处理方式](https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/LOG.md)  
+[超时重试处理方式](https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/TIMEOUT.md) 
+[CommonRequest调用方式](https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/COMMON.md)  
+[回调类接口实现](https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/CALLBACK.md)  
+[错误处理方法](https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/ERROR.md)  
+[待实现方法](https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/TODO.md)  
