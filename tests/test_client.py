@@ -11,6 +11,7 @@ pubkey = os.getenv("PUBKEY", "")
 secret = os.getenv("SECRET", "")
 log_dir_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+
 # todo: 测试图片返回
 @pytest.mark.parametrize('debug,action,params,expected', [
     (False, '/user/create',
