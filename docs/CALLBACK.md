@@ -11,7 +11,9 @@
 以tornado代码为例
 ```python
 import json
-from .. import BaseRequestHandler
+
+from api import BaseRequestHandler
+
 
 class WebhookHandler(BaseRequestHandler):
     """
@@ -29,6 +31,8 @@ class WebhookHandler(BaseRequestHandler):
         
         for one in suggested_response:
             # do sth
+            pass
+            
 
         resp = {
             "is_dispatch": is_dispatch,
