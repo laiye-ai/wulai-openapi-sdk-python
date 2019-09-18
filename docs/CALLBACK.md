@@ -56,6 +56,6 @@ class WebhookHandler(BaseRequestHandler):
 
 以tornado为例  
 该示例中消息投递接口直接对接websocket渠道。
-```
+```python
 # todo
 ```

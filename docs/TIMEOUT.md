@@ -6,16 +6,14 @@
 #### 使用
 1. 使用封装好的api
 ```python
-import os
-
 from wulaisdk.client import WulaiClient
 
-pubkey = os.getenv("PUBKEY", "")
-secret = os.getenv("SECRET", "")
+
+pubkey = "your pubkey"
+secret = "your secret"
 
 client = WulaiClient(pubkey, secret)
 user_id = "test_user"
-
 
 opts = {
     "method": "POST",
@@ -26,7 +24,15 @@ resp = client.create_user(user_id, **opts)
 ```
 2. 使用CommonRequest
 ```python
-post_data = {
+from wulaisdk.client import WulaiClient
+from wulaisdk.request import CommonRequest
+
+
+pubkey = "your pubkey"
+secret = "your secret"
+
+action = "/user/create"
+params = {
     "avatar_url": "",
     "user_id": "test_user",
     "nickname": "测试用户"
@@ -36,7 +42,7 @@ opts = {
     "retry": 2,
     "timeout": 3
 }
-client = WulaiClient(pubkey, secret, debug=debug)
+client = WulaiClient(pubkey, secret, debug=False)
 request = CommonRequest(action, params, opts)
 resp = client.process_common_request(request)
 ```

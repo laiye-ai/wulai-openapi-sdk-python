@@ -3,14 +3,12 @@
 使用CommonRequest调用方式可实现任意Open API接口的调用。
 
 ```python
-import os
-
 from wulaisdk.client import WulaiClient
 from wulaisdk.request import CommonRequest
 
 
-pubkey = os.getenv("PUBKEY", "")
-secret = os.getenv("SECRET", "")
+pubkey = "your pubkey"
+secret = "your secret"
 
 client = WulaiClient(pubkey, secret, api_version="v2")
 

@@ -24,9 +24,9 @@ import logging
 
 from wulaisdk.client import WulaiClient
 
-pubkey = os.getenv("PUBKEY", "")
-secret = os.getenv("SECRET", "")
-log_dir_path = "your_path"
+pubkey = "your pubkey"
+secret = "your secret"
+log_dir_path = "your path"
 
 client = WulaiClient(pubkey, secret, debug=True)
 

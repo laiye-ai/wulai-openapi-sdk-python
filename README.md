@@ -1,4 +1,9 @@
-# wulai-openapi-sdk-python
+<p align="center">
+	<a href="https://www.laiye.com"><img src="https://www.laiye.com/static/official-website/logo.png"></a>
+</p>
+
+<h1 align="center">Wulai Openapi SDK for Python</h1>
+
 [![Build Status](https://travis-ci.org/laiye-ai/wulai-openapi-sdk-python.svg?branch=master)](https://travis-ci.org/laiye-ai/wulai-openapi-sdk-python)
 [![codecov](https://codecov.io/gh/laiye-ai/wulai-openapi-sdk-python/branch/master/graph/badge.svg)](https://codecov.io/gh/laiye-ai/wulai-openapi-sdk-python)
 [![PyPi version](https://pypip.in/v/wulaisdk/badge.png)](https://crate.io/packages/$REPO/)
@@ -17,9 +22,10 @@
 
 
 #### 如何使用
-```
+```python
 # 基础对话场景
 from wulaisdk.client import WulaiClient
+
 
 # 创建client示例
 pubkey = "your pubkey"
@@ -47,6 +53,8 @@ resp = client.get_bot_response(user_id, msg_body, extra)
 ```
 基础对话场景 - base_talk.py
 个性化对话场景 - personalized_talk.py
+异步基础对话场景 - async_basic_talk.py
+异步定制对话场景 - async_custom_talk.py
 ```
 
 [常用接口](https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/API.md)  
