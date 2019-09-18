@@ -2,7 +2,7 @@
 > 当您要调用的某个产品的API没有提供SDK时，可以采用泛用型的API调用方式（CommonRequest）。  
 使用CommonRequest调用方式可实现任意Open API接口的调用。
 
-```
+```python
 import os
 
 from wulaisdk.client import WulaiClient

@@ -5,7 +5,14 @@
 
 #### 使用
 1. 使用封装好的api
-```
+```python
+import os
+
+from wulaisdk.client import WulaiClient
+
+pubkey = os.getenv("PUBKEY", "")
+secret = os.getenv("SECRET", "")
+
 client = WulaiClient(pubkey, secret)
 user_id = "test_user"
 
@@ -18,7 +25,7 @@ opts = {
 resp = client.create_user(user_id, **opts)
 ```
 2. 使用CommonRequest
-```
+```python
 post_data = {
     "avatar_url": "",
     "user_id": "test_user",

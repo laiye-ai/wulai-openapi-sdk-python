@@ -9,6 +9,13 @@ from wulaisdk.request import CommonRequest
 from wulaisdk.exceptions import ServerException, ClientException, ERR_INFO
 
 from requests.exceptions import ConnectionError, ConnectTimeout
+from wulaisdk.response.bot_response import BotResponse
+from wulaisdk.response.keyword_bot_response import KeywordBotResponse
+from wulaisdk.response.qa_bot_response import QABotResponse
+from wulaisdk.response.task_bot_response import TaskBotResponse
+from wulaisdk.response.sync_message import SyncMessage
+from wulaisdk.response.receive_message import ReceiveMessage
+from wulaisdk.response.history_message import HistoryMessage
 
 
 DEBUG = False
@@ -255,7 +262,7 @@ class WulaiClient:
 
         request = CommonRequest("/msg/bot-response", params, opts)
         body = self.process_common_request(request)
-        return body
+        return BotResponse(**body)
 
     def create_user_user_attribute(self, user_id: str, user_attribute_user_attribute_value: list, **kwargs):
         """
@@ -324,7 +331,7 @@ class WulaiClient:
 
         request = CommonRequest("/msg/bot-response/keyword", params, opts)
         body = self.process_common_request(request)
-        return body
+        return KeywordBotResponse(**body)
 
     def get_qa_bot_response(self, user_id: str, msg_body: dict, extra: str="", **kwargs):
         """
@@ -372,7 +379,7 @@ class WulaiClient:
 
         request = CommonRequest("/msg/bot-response/qa", params, opts)
         body = self.process_common_request(request)
-        return body
+        return QABotResponse(**body)
 
     def get_task_bot_response(self, user_id: str, msg_body: dict, extra: str="", **kwargs):
         """
@@ -420,7 +427,7 @@ class WulaiClient:
 
         request = CommonRequest("/msg/bot-response/task", params, opts)
         body = self.process_common_request(request)
-        return body
+        return TaskBotResponse(**body)
 
     def sync_message(self, user_id: str, msg_body: dict, msg_ts: str, extra: str="", **kwargs):
         """
@@ -470,7 +477,7 @@ class WulaiClient:
 
         request = CommonRequest("/msg/sync", params, opts)
         body = self.process_common_request(request)
-        return body
+        return SyncMessage(**body)
 
     def receive_message(self, user_id: str, msg_body: dict, third_msg_id: str="", extra: str="", **kwargs):
         """
@@ -520,7 +527,7 @@ class WulaiClient:
 
         request = CommonRequest("/msg/receive", params, opts)
         body = self.process_common_request(request)
-        return body
+        return ReceiveMessage(**body)
 
     def get_message_history(self, user_id: str, num: int, direction: str="BACKWARD", msg_id: str="", **kwargs):
         """
@@ -544,4 +551,4 @@ class WulaiClient:
 
         request = CommonRequest("/msg/history", params, opts)
         body = self.process_common_request(request)
-        return body
+        return HistoryMessage(**body)

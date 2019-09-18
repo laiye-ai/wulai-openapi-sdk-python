@@ -9,7 +9,10 @@
   在同步方式、异步方式中均可使用。
 
 以tornado代码为例
-```
+```python
+import json
+from .. import BaseRequestHandler
+
 class WebhookHandler(BaseRequestHandler):
     """
     吾来平台消息路由
@@ -50,32 +53,5 @@ class WebhookHandler(BaseRequestHandler):
 以tornado为例  
 该示例中消息投递接口直接对接websocket渠道。
 ```
-class UserSocketHandler(tornado.websocket.WebSocketHandler):
-    """
-    客户端长连接, 处理接收和发送消息
-    """
-    async def ai_reply(self, data, user_id):
-        """
-        根据用户 ID 发送吾来回复消息给客户端
-        """
-        result = {
-            'action': 'reply',
-            'data': data
-        }
-        await self.write_message(result)
-    # ...
-    
-
-
-class CallbackHandler(BaseHandler):
-    """
-    接收吾来平台回调, 返回信息给客户端
-    """
-
-    async def post(self, *args, **kwargs):
-        data = json.loads(self.request.body)
-        # do sth.
-        # websocket服务
-        await UserSocketHandler.ai_reply(content, user_id)
-        self.write("success")
+# todo
 ```
