@@ -18,9 +18,15 @@ logging.StreamHandler()
 ```
 
 自定义handler及formatter
-```
+```python
+import os
 import logging
 
+from wulaisdk.client import WulaiClient
+
+pubkey = "your pubkey"
+secret = "your secret"
+log_dir_path = "your path"
 
 client = WulaiClient(pubkey, secret, debug=True)
 

@@ -11,7 +11,7 @@ pubkey = os.getenv("PUBKEY", "")
 secret = os.getenv("SECRET", "")
 log_dir_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# todo: 测试图片返回
+
 @pytest.mark.parametrize('debug,action,params,expected', [
     (False, '/user/create',
      {
@@ -147,7 +147,19 @@ def test_create_user_error(debug, user_id):
 def test_get_bot_response_normal(user_id, msg_body, extra, expected):
     client = WulaiClient(pubkey, secret, debug=True)
     resp = client.get_bot_response(user_id, msg_body, extra)
-    assert set(resp.keys()) == set(expected.keys())
+    assert set(resp.to_dict().keys()) == set(expected.keys())
+    assert set(resp.__dict__.keys()) == set(expected.keys())
+    assert resp.suggested_response[0].response[0].msg_body.text.content == '你好，有什么可以为你服务的吗？(*╹▽╹*)'
+
+
+# getBotResponse for image test
+@pytest.mark.parametrize('user_id,msg_body', [
+    ("shierlou", {"text": {"content": "图片如何回复"}})
+])
+def test_get_bot_response_image(user_id, msg_body):
+    client = WulaiClient(pubkey, secret, debug=True)
+    resp = client.get_bot_response(user_id, msg_body)
+    assert isinstance(resp.suggested_response[0].response[0].msg_body.image.resource_url, str)
 
 
 # createUserUserAttribute test
@@ -170,7 +182,8 @@ def test_create_user_user_attribute_normal(user_id, user_attribute_user_attribut
 def test_get_keyword_bot_response_normal(user_id, msg_body, expected):
     client = WulaiClient(pubkey, secret, debug=True)
     resp = client.get_keyword_bot_response(user_id, msg_body)
-    assert resp["keyword_suggested_response"][0]["response"][0]["msg_body"]["text"]["content"] == expected
+    assert resp.to_dict()["keyword_suggested_response"][0]["response"][0]["msg_body"]["text"]["content"] == expected
+    assert resp.keyword_suggested_response[0].response[0].msg_body.text.content == expected
 
 
 # getQABotResponse test
@@ -180,17 +193,29 @@ def test_get_keyword_bot_response_normal(user_id, msg_body, expected):
 def test_get_qa_bot_response_normal(user_id, msg_body, extra, expected):
     client = WulaiClient(pubkey, secret, debug=True)
     resp = client.get_qa_bot_response(user_id, msg_body, extra)
-    assert resp["qa_suggested_response"][0]["response"][0]["msg_body"]["text"]["content"] == expected
+    assert resp.to_dict()["qa_suggested_response"][0]["response"][0]["msg_body"]["text"]["content"] == expected
+    assert resp.qa_suggested_response[0].response[0].msg_body.text.content == expected
+
+
+# getQABotResponse for image test
+@pytest.mark.parametrize('user_id,msg_body,extra', [
+    ("shierlou", {"text": {"content": "图片如何回复"}}, "this is extra string")
+])
+def test_get_qa_bot_response_image(user_id, msg_body, extra):
+    client = WulaiClient(pubkey, secret, debug=True)
+    resp = client.get_qa_bot_response(user_id, msg_body, extra)
+    assert isinstance(resp.qa_suggested_response[0].response[0].msg_body.image.resource_url, str)
 
 
 # getTaskBotResponse test
 @pytest.mark.parametrize('user_id,msg_body,extra', [
     ("shierlou", {"text": {"content": "我想查尺码"}}, "this is extra string")
 ])
-def test_get_bot_response_normal(user_id, msg_body, extra):
+def test_get_task_bot_response_normal(user_id, msg_body, extra):
     client = WulaiClient(pubkey, secret, debug=True)
     resp = client.get_task_bot_response(user_id, msg_body, extra)
-    assert "text" in resp["task_suggested_response"][0]["response"][0]["msg_body"].keys()
+    assert "text" in resp.to_dict()["task_suggested_response"][0]["response"][0]["msg_body"].keys()
+    assert isinstance(resp.task_suggested_response[0].response[0].msg_body.text.content, str)
 
 
 # syncMessage test
@@ -200,7 +225,8 @@ def test_get_bot_response_normal(user_id, msg_body, extra):
 def test_sync_message(user_id, msg_body, msg_ts):
     client = WulaiClient(pubkey, secret, debug=True)
     resp = client.sync_message(user_id, msg_body, msg_ts)
-    assert "msg_id" in resp
+    assert "msg_id" in resp.to_dict()
+    assert isinstance(resp.msg_id, str)
 
 
 # receiveMessage test
@@ -210,14 +236,34 @@ def test_sync_message(user_id, msg_body, msg_ts):
 def test_receive_message(user_id, msg_body):
     client = WulaiClient(pubkey, secret, debug=True)
     resp = client.receive_message(user_id, msg_body)
-    assert "msg_id" in resp
+    assert "msg_id" in resp.to_dict()
+    assert isinstance(resp.msg_id, str)
 
 
 # getMessageHistory test
 @pytest.mark.parametrize('user_id,num', [
     ("shierlou", 50)
 ])
-def test_receive_message(user_id, num):
+def test_message_history(user_id, num):
     client = WulaiClient(pubkey, secret, debug=True)
     resp = client.get_message_history(user_id, num)
-    assert set(resp.keys()) == {"msg", "has_more"}
+    assert set(resp.to_dict().keys()) == {"msg", "has_more"}
+    assert isinstance(resp.msg[0].user_info.nickname, str)
+    assert isinstance(resp.msg[0].msg_body.to_dict(), dict)
+    msg_body = resp.msg[0].msg_body
+    if hasattr(msg_body, "text"):
+        assert isinstance(msg_body.text.content, str)
+    elif hasattr(msg_body, "image"):
+        assert isinstance(msg_body.image.resource_url, str)
+
+
+#############################################################
+#                   reset task bot
+#############################################################
+@pytest.mark.parametrize('user_id,msg_body,extra', [
+    ("shierlou", {"text": {"content": "/restart"}}, "this is extra string")
+])
+def test_reset_task(user_id, msg_body, extra):
+    client = WulaiClient(pubkey, secret, debug=True)
+    resp = client.get_bot_response(user_id, msg_body, extra)
+    assert isinstance(resp.suggested_response[0].response[0].msg_body.text.content, str)

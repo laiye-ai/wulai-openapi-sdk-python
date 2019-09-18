@@ -1,4 +1,9 @@
-# wulai-openapi-sdk-python
+<p align="center">
+	<a href="https://www.laiye.com"><img src="https://www.laiye.com/static/official-website/logo.png"></a>
+</p>
+
+<h1 align="center">Wulai Openapi SDK for Python</h1>
+
 [![Build Status](https://travis-ci.org/laiye-ai/wulai-openapi-sdk-python.svg?branch=master)](https://travis-ci.org/laiye-ai/wulai-openapi-sdk-python)
 [![codecov](https://codecov.io/gh/laiye-ai/wulai-openapi-sdk-python/branch/master/graph/badge.svg)](https://codecov.io/gh/laiye-ai/wulai-openapi-sdk-python)
 [![PyPi version](https://pypip.in/v/wulaisdk/badge.png)](https://crate.io/packages/$REPO/)
@@ -9,7 +14,7 @@
 
 
 #### 使用条件
-> python >= 3.4
+> python >= 3.6
 
 
 #### 安装
@@ -17,9 +22,10 @@
 
 
 #### 如何使用
-```
+```python
 # 基础对话场景
 from wulaisdk.client import WulaiClient
+
 
 # 创建client示例
 pubkey = "your pubkey"
@@ -47,21 +53,14 @@ resp = client.get_bot_response(user_id, msg_body, extra)
 ```
 基础对话场景 - base_talk.py
 个性化对话场景 - personalized_talk.py
-
-如封装后的api调用不满足需求
-可参考origin.py自定义请求
+异步基础对话场景 - async_basic_talk.py
+异步定制对话场景 - async_custom_talk.py
 ```
 
-
-#### 常用接口
-```
-client = WulaiClient(pubkey, secret)
-
-# 创建用户
-client.create_user()
-# 获取机器人回复
-client.get_bot_response()
-# 添加用户属性值
-client.create_user_user_attribute()
-
-```
+[常用接口](https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/API.md)  
+[日志处理方式](https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/LOG.md)  
+[超时重试处理方式](https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/TIMEOUT.md)   
+[CommonRequest调用方式](https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/COMMON.md)    
+[回调类接口实现](https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/CALLBACK.md)  
+[错误处理方法](https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/ERROR.md)  
+[待实现方法](https://github.com/laiye-ai/wulai-openapi-sdk-python/blob/master/docs/TODO.md)  
