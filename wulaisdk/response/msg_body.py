@@ -67,35 +67,6 @@ class ShareLink(BaseModel):
         self.destination_url = destination_url
         self.cover_url = cover_url
         self.title = title
-#
-#
-# class MsgBody:
-#     text: Text
-#
-#     def __init__(self, text: Text) -> None:
-#         self.text = Text(**text)
-#
-#
-# class MsgBody:
-#     msg_body: dict
-#
-#     def __init__(self, msg_body: dict) -> None:
-#         if "text" in msg_body:
-#             self.text = Text(**msg_body)
-#         elif "image" in msg_body:
-#             self.text = Image(**msg_body)
-#         elif "custom" in msg_body:
-#             self.text = Custom(**msg_body)
-#         elif "video" in msg_body:
-#             self.text = Video(**msg_body)
-#         elif "file" in msg_body:
-#             self.text = File(**msg_body)
-#         elif "voice" in msg_body:
-#             self.text = Voice(**msg_body)
-#         elif "share_link" in msg_body:
-#             self.text = ShareLink(**msg_body)
-#         else:
-#             raise ValueError("err msg body value")
 
 
 class MsgBody(BaseModel):
@@ -103,18 +74,20 @@ class MsgBody(BaseModel):
 
     def __init__(self, **kwargs) -> None:
         if "text" in kwargs:
-            self.text = Text(**kwargs.get("text"))
+            self.text = Text.from_dict(kwargs.get("text"))
         elif "image" in kwargs:
-            self.image = Image(**kwargs.get("image"))
+            self.image = Image.from_dict(kwargs.get("image"))
         elif "custom" in kwargs:
-            self.custom = Custom(**kwargs.get("custom"))
+            self.custom = Custom.from_dict(kwargs.get("custom"))
         elif "video" in kwargs:
-            self.video = Video(**kwargs.get("video"))
+            self.video = Video.from_dict(kwargs.get("video"))
         elif "file" in kwargs:
-            self.file = File(**kwargs.get("file"))
+            self.file = File.from_dict(kwargs.get("file"))
         elif "voice" in kwargs:
-            self.voice = Voice(**kwargs.get("voice"))
+            self.voice = Voice.from_dict(kwargs.get("voice"))
         elif "share_link" in kwargs:
-            self.share_link = ShareLink(**kwargs.get("share_link"))
+            self.share_link = ShareLink.from_dict(kwargs.get("share_link"))
         else:
-            raise ValueError("err msg body value")
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+            # raise ValueError("err msg body value")

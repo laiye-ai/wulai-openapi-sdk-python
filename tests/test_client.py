@@ -6,6 +6,9 @@ import logging
 from wulaisdk.client import WulaiClient
 from wulaisdk.request import CommonRequest
 from wulaisdk.exceptions import ClientException
+from wulaisdk.response.bot_response import BotResponse
+from wulaisdk.response.msg_body import MsgBody
+
 
 pubkey = os.getenv("PUBKEY", "")
 secret = os.getenv("SECRET", "")
@@ -140,15 +143,12 @@ def test_create_user_error(debug, user_id):
 
 
 # getBotResponse test
-@pytest.mark.parametrize('user_id,msg_body,extra,expected', [
-    ("shierlou", {"text": {"content": "你好"}}, "this is extra string",
-     {"is_dispatch": "", "suggested_response": {}, "msg_id": ""})
+@pytest.mark.parametrize('user_id,msg_body,extra', [
+    ("shierlou", {"text": {"content": "你好"}}, "this is extra string")
 ])
-def test_get_bot_response_normal(user_id, msg_body, extra, expected):
+def test_get_bot_response_normal(user_id, msg_body, extra):
     client = WulaiClient(pubkey, secret, debug=True)
     resp = client.get_bot_response(user_id, msg_body, extra)
-    assert set(resp.to_dict().keys()) == set(expected.keys())
-    assert set(resp.__dict__.keys()) == set(expected.keys())
     assert resp.suggested_response[0].response[0].msg_body.text.content == '你好，有什么可以为你服务的吗？(*╹▽╹*)'
 
 
@@ -247,7 +247,7 @@ def test_receive_message(user_id, msg_body):
 def test_message_history(user_id, num):
     client = WulaiClient(pubkey, secret, debug=True)
     resp = client.get_message_history(user_id, num)
-    assert set(resp.to_dict().keys()) == {"msg", "has_more"}
+    assert resp.to_dict()
     assert isinstance(resp.msg[0].user_info.nickname, str)
     assert isinstance(resp.msg[0].msg_body.to_dict(), dict)
     msg_body = resp.msg[0].msg_body
@@ -255,6 +255,24 @@ def test_message_history(user_id, num):
         assert isinstance(msg_body.text.content, str)
     elif hasattr(msg_body, "image"):
         assert isinstance(msg_body.image.resource_url, str)
+
+
+# bot-response wrapper test
+@pytest.mark.parametrize('body', [
+    {"msg_id": "123", "test": "test", "is_dispatch": False, "suggested_response": [], "extra": ""}
+])
+def test_err_response(body):
+    assert BotResponse.from_dict(body)
+
+
+# msg_body wrapper test
+@pytest.mark.parametrize('body', [
+    {"text": {"content": "hhhh"}},
+    {"image": {"resource_url": "hhhh"}},
+    {"test": {"test": "test"}},
+])
+def test_err_response(body):
+    assert MsgBody.from_dict(body)
 
 
 #############################################################

@@ -262,7 +262,7 @@ class WulaiClient:
 
         request = CommonRequest("/msg/bot-response", params, opts)
         body = self.process_common_request(request)
-        return BotResponse(**body)
+        return BotResponse.from_dict(body)
 
     def create_user_user_attribute(self, user_id: str, user_attribute_user_attribute_value: list, **kwargs):
         """
@@ -331,7 +331,7 @@ class WulaiClient:
 
         request = CommonRequest("/msg/bot-response/keyword", params, opts)
         body = self.process_common_request(request)
-        return KeywordBotResponse(**body)
+        return KeywordBotResponse.from_dict(body)
 
     def get_qa_bot_response(self, user_id: str, msg_body: dict, extra: str="", **kwargs):
         """
@@ -379,7 +379,7 @@ class WulaiClient:
 
         request = CommonRequest("/msg/bot-response/qa", params, opts)
         body = self.process_common_request(request)
-        return QABotResponse(**body)
+        return QABotResponse.from_dict(body)
 
     def get_task_bot_response(self, user_id: str, msg_body: dict, extra: str="", **kwargs):
         """
@@ -427,7 +427,7 @@ class WulaiClient:
 
         request = CommonRequest("/msg/bot-response/task", params, opts)
         body = self.process_common_request(request)
-        return TaskBotResponse(**body)
+        return TaskBotResponse.from_dict(body)
 
     def sync_message(self, user_id: str, msg_body: dict, msg_ts: str, extra: str="", **kwargs):
         """
@@ -477,7 +477,7 @@ class WulaiClient:
 
         request = CommonRequest("/msg/sync", params, opts)
         body = self.process_common_request(request)
-        return SyncMessage(**body)
+        return SyncMessage.from_dict(body)
 
     def receive_message(self, user_id: str, msg_body: dict, third_msg_id: str="", extra: str="", **kwargs):
         """
@@ -527,7 +527,7 @@ class WulaiClient:
 
         request = CommonRequest("/msg/receive", params, opts)
         body = self.process_common_request(request)
-        return ReceiveMessage(**body)
+        return ReceiveMessage.from_dict(body)
 
     def get_message_history(self, user_id: str, num: int, direction: str="BACKWARD", msg_id: str="", **kwargs):
         """
@@ -551,4 +551,4 @@ class WulaiClient:
 
         request = CommonRequest("/msg/history", params, opts)
         body = self.process_common_request(request)
-        return HistoryMessage(**body)
+        return HistoryMessage.from_dict(body)
