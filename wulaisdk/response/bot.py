@@ -57,7 +57,7 @@ class Task(BaseModel):
         self.block_id = block_id
         self.task_id = task_id
         self.block_name = block_name
-        self.entities = [Entity(**entity) for entity in entities]
+        self.entities = [Entity.from_dict(entity) for entity in entities]
         self.task_name = task_name
         self.robot_id = robot_id
 
@@ -75,12 +75,14 @@ class Bot(BaseModel):
 
     def __init__(self, **kwargs) -> None:
         if "qa" in kwargs:
-            self.qa = QA(**kwargs.get("qa"))
+            self.qa = QA.from_dict(kwargs.get("qa"))
         elif "chitchat" in kwargs:
-            self.chit_chat = ChitChat(**kwargs.get("chitchat"))
+            self.chit_chat = ChitChat.from_dict(kwargs.get("chitchat"))
         elif "task" in kwargs:
-            self.task = Task(**kwargs.get("task"))
+            self.task = Task.from_dict(kwargs.get("task"))
         elif "keyword" in kwargs:
-            self.keyword = KeyWord(**kwargs.get("keyword"))
+            self.keyword = KeyWord.from_dict(kwargs.get("keyword"))
         else:
-            raise ValueError("err bot body value")
+            for k, v in kwargs:
+                setattr(self, k, v)
+            # raise ValueError("err bot body value")

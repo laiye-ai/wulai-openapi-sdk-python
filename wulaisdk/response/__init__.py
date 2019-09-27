@@ -1,4 +1,5 @@
 import six
+import inspect
 
 
 class BaseModel:
@@ -26,3 +27,11 @@ class BaseModel:
                 result[attr] = value
 
         return result
+
+    @classmethod
+    def from_dict(cls, env):
+        parameters = inspect.signature(cls).parameters
+        return cls(**{
+            k: v for k, v in env.items()
+            if k in parameters or set(parameters.keys()) == {'kwargs'}
+        })

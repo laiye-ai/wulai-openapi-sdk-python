@@ -36,7 +36,7 @@ class Msg(BaseModel):
     def __init__(self, direction: str, sender_info: SenderInfo, msg_type: str, extra: str, msg_id: str, msg_ts: str, user_info: UserInfo, msg_body: MsgBody) -> None:
         self.direction = direction
         if sender_info:
-            self.sender_info = SenderInfo(**sender_info)
+            self.sender_info = SenderInfo.from_dict(sender_info)
         else:
             self.sender_info = SenderInfo("", "", "")
         self.msg_type = msg_type
@@ -44,10 +44,10 @@ class Msg(BaseModel):
         self.msg_id = msg_id
         self.msg_ts = msg_ts
         if user_info:
-            self.user_info = UserInfo(**user_info)
+            self.user_info = UserInfo.from_dict(user_info)
         else:
             self.user_info = UserInfo("", "")
-        self.msg_body = MsgBody(**msg_body)
+        self.msg_body = MsgBody.from_dict(msg_body)
 
 
 class HistoryMessage(BaseModel):
@@ -55,5 +55,5 @@ class HistoryMessage(BaseModel):
     has_more: bool
 
     def __init__(self, msg: List[Msg], has_more: bool) -> None:
-        self.msg = [Msg(**m) for m in msg]
+        self.msg = [Msg.from_dict(m) for m in msg]
         self.has_more = has_more

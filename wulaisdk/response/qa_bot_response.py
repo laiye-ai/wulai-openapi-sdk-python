@@ -23,7 +23,7 @@ class SimilarResponse(BaseModel):
     def __init__(self, url: str, source: str, detail: Bot) -> None:
         self.url = url
         self.source = source
-        self.detail = Bot(**detail)
+        self.detail = Bot.from_dict(detail)
 
 
 class Response(BaseModel):
@@ -31,12 +31,15 @@ class Response(BaseModel):
     similar_response: List[SimilarResponse]
     enable_evaluate: bool
     delay_ts: int
+    extra: str
 
-    def __init__(self, msg_body: MsgBody, similar_response: List[SimilarResponse], enable_evaluate: bool, delay_ts: int) -> None:
-        self.msg_body = MsgBody(**msg_body)
-        self.similar_response = [SimilarResponse(**sr) for sr in similar_response]
+    def __init__(self, msg_body: MsgBody, similar_response: List[SimilarResponse], enable_evaluate: bool,
+                 delay_ts: int, extra: str) -> None:
+        self.msg_body = MsgBody.from_dict(msg_body)
+        self.similar_response = [SimilarResponse.from_dict(sr) for sr in similar_response]
         self.enable_evaluate = enable_evaluate
         self.delay_ts = delay_ts
+        self.extra = extra
 
 
 class QASuggestedResponse(BaseModel):
@@ -47,10 +50,10 @@ class QASuggestedResponse(BaseModel):
     quick_reply: List[str]
 
     def __init__(self, qa: QA, is_send: bool, score: int, response: List[Response], quick_reply: List[str]) -> None:
-        self.qa = QA(**qa)
+        self.qa = QA.from_dict(qa)
         self.is_send = is_send
         self.score = score
-        self.response = [Response(**r) for r in response]
+        self.response = [Response.from_dict(r) for r in response]
         self.quick_reply = quick_reply
 
 
@@ -58,8 +61,10 @@ class QABotResponse(BaseModel):
     is_dispatch: bool
     msg_id: str
     qa_suggested_response: List[QASuggestedResponse]
+    extra: str
 
-    def __init__(self, is_dispatch: bool, msg_id: str, qa_suggested_response: List[QASuggestedResponse]) -> None:
+    def __init__(self, is_dispatch: bool, msg_id: str, qa_suggested_response: List[QASuggestedResponse], extra: str) -> None:
         self.is_dispatch = is_dispatch
         self.msg_id = msg_id
-        self.qa_suggested_response = [QASuggestedResponse(**qsr) for qsr in qa_suggested_response]
+        self.qa_suggested_response = [QASuggestedResponse.from_dict(qsr) for qsr in qa_suggested_response]
+        self.extra = extra
