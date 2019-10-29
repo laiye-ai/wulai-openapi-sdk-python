@@ -807,7 +807,7 @@ class WulaiClient:
         该接口用于创建属性组，具体内容包括属性组名称，及构成该属性组的用户属性和属性值。
         :param user_attribute_group_item: 用户属性组及属性
         {
-            "user_attribute_user_attribute_value": list(属性。
+            "user_attribute_user_attribute_value"【required】: list(属性。
                 我们用A代表此处传入的属性列表。
                 调用获取用户属性列表接口，请求值传filter.use_in_user_attribute_group=true，获取到可以作为属性组的属性列表B。
 

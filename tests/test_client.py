@@ -529,10 +529,12 @@ def test_user_attribute(user_attribute_group_item, user_attribute_group_item_upd
     assert resp_uuaga.user_attribute_group_answer.answer.id == user_attribute_group_answer_id
     # 查询属性组回复列表
     resp_answers = client.user_attribute_group_answers(page, page_size, timeout=10)
+    resp_answers_2 = client.user_attribute_group_answers(page, page_size, {"knowledge_id": "1048247"}, timeout=10)
     assert isinstance(resp_answers.user_attribute_group_answers, list)
+    assert isinstance(resp_answers_2.user_attribute_group_answers, list)
 
     # 删除属性组回复
-    # resp = client.delete_user_attribute_group_answer(user_attribute_group_answer_id)
+    resp = client.delete_user_attribute_group_answer(user_attribute_group_answer_id)
 
 
 #############################################################
