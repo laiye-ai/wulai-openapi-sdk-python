@@ -388,7 +388,7 @@ def test_knowledge_tags(page, page_size, knowledge_c, knowledge_u):
     resp_second_tags = client.knowledge_tags(page, page_size, parent_k_tag_id)
     knowledge_tags = resp_second_tags.knowledge_tags
     knowledge_tags_di = [r.to_dict() for r in knowledge_tags]
-    target_id = find_value_from_dict_array(knowledge_tags_di, "name", "id", "测试1")
+    target_id = find_value_from_dict_array(knowledge_tags_di, "name", "id", "测试_yt")
 
     # create
     knowledge_c["knowledge_tag_id"] = target_id
@@ -524,10 +524,10 @@ def test_user_attribute(user_attribute_group_item, user_attribute_group_item_upd
     user_attribute_group_answer_update["user_attribute_group_id"] = user_attribute_group_id
 
     resp_uuaga = client.update_user_attribute_group_answer(user_attribute_group_answer_update)
+    assert resp_uuaga.user_attribute_group_answer.answer.id == user_attribute_group_answer_id
     # 查询属性组回复列表
     resp_answers = client.user_attribute_group_answers(page, page_size, timeout=10)
-    user_attribute_group_answer_ids = [a.answer.id for a in resp_answers.user_attribute_group_answers]
-    assert resp_uuaga.user_attribute_group_answer.answer.id in user_attribute_group_answer_ids
+    assert isinstance(resp_answers.user_attribute_group_answers, list)
 
     # 删除属性组回复
     # resp = client.delete_user_attribute_group_answer(user_attribute_group_answer_id)
