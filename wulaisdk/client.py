@@ -637,7 +637,7 @@ class WulaiClient:
         {
             "knowledge"【required】: {
                 "status"【required】: bool(知识点状态),
-                "standard_question": str(知识点标题),
+                "standard_question"【required】: str(知识点标题),
                 "respond_all"【required】: bool(发送全部回复),
                 "id": str(知识点id，创建时可不传该参数或传None),
                 "maintained_by_user_attribute_group"【required】: bool,

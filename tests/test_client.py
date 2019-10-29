@@ -382,9 +382,11 @@ knowledge_c_2 = {
 def test_knowledge_tags(page, page_size, knowledge_c, knowledge_u):
     client = WulaiClient(pubkey, secret, debug=True)
     # tags
+    #    -- without parent_k_tag_id
     resp_parent_tags = client.knowledge_tags(page, page_size)
     parent_k_tag_id = resp_parent_tags.knowledge_tags[0].id
 
+    #    -- with parent_k_tag_id
     resp_second_tags = client.knowledge_tags(page, page_size, parent_k_tag_id)
     knowledge_tags = resp_second_tags.knowledge_tags
     knowledge_tags_di = [r.to_dict() for r in knowledge_tags]
