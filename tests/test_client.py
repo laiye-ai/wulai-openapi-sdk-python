@@ -432,24 +432,29 @@ def test_knowledge_tags(page, page_size, knowledge_c, knowledge_u):
 
 
 # user-attribute test
+# 区分3.6和3.7的测试内容
+if sys.version_info.minor == 7:
+    source_name = "微信"
+else:
+    source_name = "微博"
 user_attribute_group_item_1 = {
     "user_attribute_user_attribute_value": [
         {
             "user_attribute": {"id": "101627"},
-            "user_attribute_value": {"name": "微信"}
+            "user_attribute_value": {"name": source_name}
         },
         {
             "user_attribute": {"id": "101629"},
             "user_attribute_value": {"name": "新用户"}
         }
     ],
-    "user_attribute_group": {"name": "微信新用户"}
+    "user_attribute_group": {"name": f"{source_name}新用户"}
 }
 user_attribute_group_item_update_1 = {
     "user_attribute_user_attribute_value": [
         {
             "user_attribute": {"id": "101627"},
-            "user_attribute_value": {"name": "微信"}
+            "user_attribute_value": {"name": source_name}
         },
         {
             "user_attribute": {"id": "101629"},
@@ -458,20 +463,20 @@ user_attribute_group_item_update_1 = {
     ],
     "user_attribute_group": {
         "id": "",
-        "name": "微信老用户"
+        "name": f"{source_name}老用户"
     }
 }
 user_attribute_group_answer_1 = {
     "answer": {
         "knowledge_id": "1048247",
-        "msg_body": {"text": {"content": "这是测试属性组的答案--微信老用户"}},
+        "msg_body": {"text": {"content": f"这是测试属性组的答案--{source_name}老用户"}},
     },
     "user_attribute_group_id": ""
 }
 user_attribute_group_answer_update_1 = {
     "answer": {
         "knowledge_id": "1048247",
-        "msg_body": {"text": {"content": "这是测试属性组的答案--微信老用户"}},
+        "msg_body": {"text": {"content": f"这是测试属性组的答案--{source_name}老用户"}},
         "id": ""
     },
     "user_attribute_group_id": ""
@@ -489,9 +494,6 @@ def test_user_attribute(user_attribute_group_item, user_attribute_group_item_upd
     client = WulaiClient(pubkey, secret, debug=True)
     # 创建属性组
     # todo：每一次测试后需要去项目里手动删除这个属性组
-    # travis中3.6和3.7的测试要分开进行
-    if sys.version_info.minor == 7:
-        time.sleep(15)
     resp_cuagi = client.create_user_attribute_group_items(user_attribute_group_item)
     # 更新属性组
     #   属性组id
