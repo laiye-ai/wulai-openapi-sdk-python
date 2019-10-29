@@ -3,6 +3,7 @@ import time
 import pytest
 import logging
 import copy
+import sys
 
 from wulaisdk.client import WulaiClient
 from wulaisdk.request import CommonRequest
@@ -488,6 +489,9 @@ def test_user_attribute(user_attribute_group_item, user_attribute_group_item_upd
     client = WulaiClient(pubkey, secret, debug=True)
     # 创建属性组
     # todo：每一次测试后需要去项目里手动删除这个属性组
+    # travis中3.6和3.7的测试要分开进行
+    if sys.version_info.minor == 7:
+        time.sleep(15)
     resp_cuagi = client.create_user_attribute_group_items(user_attribute_group_item)
     # 更新属性组
     #   属性组id
