@@ -21,6 +21,7 @@ from wulaisdk.response.similar_question import SimilarQuestionCreate, SimilarQue
 from wulaisdk.response.user_attribute_group import CreateUserAttributeGroup, UpdateUserAttributeGroup,\
     UpdateUserAttributeGroupItems, CreateUserAttributeGroupAnswer, UpdateUserAttributeGroupAnswer,\
     UserAttributeGroupAnswers, UserUserAttribute, UserAttributes
+from wulaisdk.response.stats import StatsQASatisfactionKnowledgeDaily, StatsQARecallDaily, StatasQARecallDailyKnowledges
 
 
 DEBUG = False
@@ -502,14 +503,18 @@ class WulaiClient:
         body = self.process_common_request(request)
         return TaskBotResponse.from_dict(body)
 
-    def sync_message(self, user_id: str, msg_body: dict, msg_ts: str, extra: str="", **kwargs):
+    def sync_message(self, user_id: str, msg_body: dict, msg_ts: str, extra: str="",
+                     answer_id: int=None, bot: dict=None, **kwargs):
         """
         同步发给用户的消息
         如果机器人接入第三方消息渠道，需要把发给用户的所有消息同步给吾来，这样才可以在吾来查看到全部消息记录。
+        如果需要使用满意度评价接口，则需要在调用本接口时传入机器人信息(bot)。
         :param user_id: str (用户唯一标识)
         :param msg_body: dict (消息体格式，任意选择一种消息类型（文本/图片/语音/视频/文件/图文/自定义消息）填充)
         :param msg_ts: str (消息毫秒级时间戳)
         :param extra: str (自定义字段)
+        :param answer_id: int (答案id)
+        :param bot: dict (机器人回复)
         msg_body:
         文本消息
         {"text": {"content"【required】: str}}
@@ -538,13 +543,82 @@ class WulaiClient:
             "title"【required】: str(链接的文字标题)
             }
         }
+
+        bot:
+        问答机器人
+        {
+        "qa": {
+            "knowledge_id": int (知识点id),
+            "standard_question": str (标准问 <=100 characters),
+            "question": str (命中的相似问 <=1024 characters),
+            "is_none_intention": str (是否为无意图知识点),
+            }
+        }
+        闲聊机器人
+        {
+        "chitchat": {
+            "corpus": str (闲聊机器人类型:
+                CHITCHAT_CORPUS_OPEN_DOMAIN: 开放闲聊
+                CHITCHAT_CORPUS_CUSTOM: 自定义闲聊)
+            }
+        }
+        任务机器人
+        {
+        "task": {
+            "block_type": str (对话单元类型:
+                BLOCK_TYPE_MESSAGE: 消息单元
+                BLOCK_TYPE_ASK: 询问单元
+                BLOCK_TYPE_HIDE: 隐藏单元
+                BLOCK_TYPE_LINK: 跳转单元
+                BLOCK_TYPE_ADVANCE_INTERFACE: 高级接口
+                BLOCK_TYPE_INTERFACE: 接口单元
+                BLOCK_TYPE_CALCULATE: 运算单元
+                BLOCK_TYPE_COLLECT: 收集单元),
+            "block_id": int (任务型机器人对话单元id),
+            "task_id": int (任务id),
+            "block_name": str (任务机器人对话单元名),
+            "entities": list (抽取的实体列表),
+            "task_name": str (任务机器人任务名),
+            "robot_id": int (机器人id)
+            }
+        }
+        entities:
+        [
+            {
+                "idx_end": int (实体值原始片段在query中的结束位置),
+                "name": str (实体名称),
+                "idx_start": int (实体值原始片段在query中的起始位置),
+                "value": str (实体值),
+                "seg_value": str (实体值的原始片段),
+                "type": str (实体类型枚举:
+                    NTITY_TYPE_SYS: 系统实体
+                    ENTITY_TYPE_UDEFINE: 用户自定义实体
+                    ENTITY_TYPE_CONTENT: 自由文本实体
+                    ENTITY_TYPE_REGEX: 正则实体
+                    ENTITY_TYPE_CITE: 引用实体
+                    ENTITY_TYPE_WEBHOOK: webhook实体
+                    ENTITY_TYPE_USERACT: user_act),
+                "desc": str (实体别名),
+            }
+        ]
+        关键字机器人
+        {
+        "keyword": {
+            "keyword_id": int (关键字id),
+            "keyword": str (命中的关键字 <=128 characters),
+            }
+        }
+
+
         :return:
         """
         params = {
             "user_id": user_id,
             "msg_body": msg_body,
             "msg_ts": msg_ts,
-            "extra": extra
+            "extra": extra,
+            "bot": bot,
+            "answer_id": answer_id
         }
         opts = self.opts_create(kwargs)
 
@@ -1000,3 +1074,109 @@ class WulaiClient:
         request = CommonRequest("/qa/user-attribute-group-answer/delete", params, opts)
         body = self.process_common_request(request)
         return body
+
+    # 统计类
+    def create_qa_satisfaction(
+            self, msg_id: str, user_id: str, bot_id: dict, satisfaction="DEFAULT_SATISFACTION", **kwargs
+    ):
+        """
+        添加用户满意度评价
+        该接口用于写入用户的满意度评价。
+        :param msg_id: str(机器人回复的消息id)
+        :param user_id: str(用户id)
+        :param bot_id: dict(机器人id，选择其中一种填写)
+        :param satisfaction: str(满意度枚举类型)
+        bot_id:
+        {
+            "knowledge_id": str(知识点id)
+        }
+        satisfaction: one of
+            THUMB_UP: 点赞
+            BAD_ANSWER: 回答了我的问题，但答案不够好
+            WRONG_ANSWER: 没有回答我的问题
+            REPORT: 举报
+        :return:
+        """
+        params = {
+            "msg_id": msg_id,
+            "user_id": user_id,
+            "bot_id": bot_id,
+            "satisfaction": satisfaction,
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/qa/satisfaction/create", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def stats_qa_satisfaction_daily_knowledges(
+            self, start_date: str, end_date: str, page: int, page_size: int, **kwargs
+    ):
+        """
+        查询问答满意度评价统计列表（知识点粒度，日报）
+        该接口可按照开始和结束日期查询每个知识点每天的满意度统计。满意度数据分为：点赞、答案不满意、答非所问三类。
+
+        注:开始时间和结束时间相距不能超过30天。
+        :param start_date: str(开始日期，格式如19700101。闭区间。开始时间和结束时间相距不能超过30天)
+        :param end_date: str(结束日期，格式如19700101。闭区间。结束时间需小于当天，开始时间和结束时间相距不能超过30天)
+        :param page: int(页码，代表查看第几页的数据 >=1)
+        :param page_size: int(每页的知识点数量 [1..200])
+        :return:
+        """
+        params = {
+            "start_date": start_date,
+            "end_date": end_date,
+            "page": page,
+            "page_size": page_size,
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/stats/qa/satisfaction/daily/knowledge/list", params, opts)
+        body = self.process_common_request(request)
+        return StatsQASatisfactionKnowledgeDaily.from_dict(body)
+
+    def stats_qa_recall_daily(self, start_date: str, end_date: str, **kwargs):
+        """
+        查询问答召回数统计列表（日报）
+        该接口可按照开始和结束日期查询每天的接收消息总数和召回总数。
+
+        注:开始时间和结束时间相距不能超过30天。
+        :param start_date: str(开始日期，格式如19700101。闭区间。开始时间和结束时间相距不能超过30天)
+        :param end_date: str(结束日期，格式如19700101。闭区间。结束时间需小于当天，开始时间和结束时间相距不能超过30天)
+        :return:
+        """
+        params = {
+            "start_date": start_date,
+            "end_date": end_date
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/stats/qa/recall/daily/list", params, opts)
+        body = self.process_common_request(request)
+        return StatsQARecallDaily.from_dict(body)
+
+    def stats_qa_recall_daily_knowledges(
+            self, start_date: str, end_date: str, page: int, page_size: int, **kwargs
+    ):
+        """
+        查询问答召回数统计列表（知识点粒度，日报）
+        该接口可按照开始和结束日期查询每个知识点每天的召回数统计。
+
+        注:开始时间和结束时间相距不能超过30天。
+        :param start_date: str(开始日期，格式如19700101。闭区间。开始时间和结束时间相距不能超过30天)
+        :param end_date: str(结束日期，格式如19700101。闭区间。结束时间需小于当天，开始时间和结束时间相距不能超过30天)
+        :param page: int(页码，代表查看第几页的数据 >=1)
+        :param page_size: int(每页的知识点数量 [1..200])
+        :return:
+        """
+        params = {
+            "start_date": start_date,
+            "end_date": end_date,
+            "page": page,
+            "page_size": page_size,
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/stats/qa/recall/daily/knowledge/list", params, opts)
+        body = self.process_common_request(request)
+        return StatasQARecallDailyKnowledges.from_dict(body)
