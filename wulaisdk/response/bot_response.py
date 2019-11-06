@@ -1,36 +1,7 @@
 from typing import List
+
 from wulaisdk.response import BaseModel
-from wulaisdk.response.msg_body import MsgBody
-from wulaisdk.response.bot import Bot
-
-
-class SimilarResponse(BaseModel):
-    url: str
-    source: str
-    detail: Bot
-
-    def __init__(self, url: str, source: str, detail: Bot) -> None:
-        self.url = url
-        self.source = source
-        self.detail = Bot.from_dict(detail)
-
-
-class Response(BaseModel):
-    msg_body: MsgBody
-    similar_response: List[SimilarResponse]
-    enable_evaluate: bool
-    delay_ts: int
-    extra: str
-    answer_id: int
-
-    def __init__(self, msg_body: MsgBody, similar_response: List[SimilarResponse], enable_evaluate: bool,
-                 delay_ts: int, extra: str, answer_id: int) -> None:
-        self.msg_body = MsgBody.from_dict(msg_body)
-        self.similar_response = [SimilarResponse.from_dict(sr) for sr in similar_response]
-        self.enable_evaluate = enable_evaluate
-        self.delay_ts = delay_ts
-        self.extra = extra
-        self.answer_id = answer_id
+from wulaisdk.response.bot import Bot, Response
 
 
 class SuggestedResponse(BaseModel):
