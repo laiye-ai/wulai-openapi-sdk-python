@@ -13,7 +13,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="wulaisdk",
-    version="1.1.2",
+    version="1.1.4",
     description="Laiye Wulai SDK for Python Programming Language",
     long_description="Laiye Wulai SDK for Python Programming Language",
     license="LICENSE Apache 2.0",
