@@ -41,6 +41,7 @@ def test_create_qa_satisfaction(user_id, satisfaction):
     knowledge_id = bot.qa.knowledge_id
 
     resp = client.create_qa_satisfaction(msg_id, user_id, {"knowledge_id": str(knowledge_id)}, satisfaction)
+    assert resp == {}
 
 
 # 查询问答满意度评价统计列表（知识点粒度，日报）
@@ -51,7 +52,7 @@ def test_create_qa_satisfaction(user_id, satisfaction):
 def test_stats_qa_satisfaction_daily_knowledges_normal(start_date, end_date, page, page_size):
     client = WulaiClient(pubkey, secret, debug=True)
     resp = client.stats_qa_satisfaction_daily_knowledges(start_date, end_date, page, page_size)
-    assert resp
+    assert resp.to_dict()
 
 
 @pytest.mark.parametrize('start_date, end_date, page, page_size', [
@@ -72,7 +73,7 @@ def test_stats_qa_satisfaction_daily_knowledges_error(start_date, end_date, page
 def test_stats_qa_recall_daily_normal(start_date, end_date):
     client = WulaiClient(pubkey, secret, debug=True)
     resp = client.stats_qa_recall_daily(start_date, end_date)
-    assert resp
+    assert resp.to_dict()
 
 
 # 查询问答召回数统计列表（知识点粒度，日报）
@@ -83,4 +84,4 @@ def test_stats_qa_recall_daily_normal(start_date, end_date):
 def test_stats_qa_recall_daily_knowledges_normal(start_date, end_date, page, page_size):
     client = WulaiClient(pubkey, secret, debug=True)
     resp = client.stats_qa_recall_daily_knowledges(start_date, end_date, page, page_size)
-    assert resp
+    assert resp.to_dict()

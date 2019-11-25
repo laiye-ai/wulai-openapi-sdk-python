@@ -22,6 +22,8 @@ from wulaisdk.response.user_attribute_group import CreateUserAttributeGroup, Upd
     UpdateUserAttributeGroupItems, CreateUserAttributeGroupAnswer, UpdateUserAttributeGroupAnswer,\
     UserAttributeGroupAnswers, UserUserAttribute, UserAttributes
 from wulaisdk.response.stats import StatsQASatisfactionKnowledgeDaily, StatsQARecallDaily, StatasQARecallDailyKnowledges
+from wulaisdk.response.dictionary import DictionaryEntities, DictionaryTerms, DictionaryTerm, \
+    DictionaryEntity, CreateEnumEntity, CreateEnumEntityValue, CreateIntentEntity, CreateIntentEntityValue
 
 
 DEBUG = False
@@ -1180,3 +1182,277 @@ class WulaiClient:
         request = CommonRequest("/stats/qa/recall/daily/knowledge/list", params, opts)
         body = self.process_common_request(request)
         return StatasQARecallDailyKnowledges.from_dict(body)
+
+    # 词库管理类
+    def dictionary_entities(self, page: int, page_size: int, **kwargs):
+        """
+        查询全部实体概要
+        查询全部实体的概要，包括实体ID、实体名称和实体类型。
+        :param page:
+        :param page_size:
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "page": page,
+            "page_size": page_size,
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/dictionary/entity/list", params, opts)
+        body = self.process_common_request(request)
+        return DictionaryEntities.from_dict(body)
+
+    def dictionary_terms(self, page: int, page_size: int, **kwargs):
+        """
+        查询专有词汇列表
+        该接口用于查询所有的专有词汇，包括定义专有词汇的id、名称和同义词。
+        :param page:
+        :param page_size:
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "page": page,
+            "page_size": page_size,
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/dictionary/term/list", params, opts)
+        body = self.process_common_request(request)
+        return DictionaryTerms.from_dict(body)
+
+    def create_dictionary_term(self, term_item: dict, **kwargs):
+        """
+        创建专有词汇
+        该接口用于创建专有词汇，包括定义专有词汇的名称和同义词。
+        :param term_item: dict(专有词汇)
+        :param kwargs:
+        term_item:
+        {
+            "term"【required】(专有词汇详情): {
+                "name"【required】: str(专有词汇的名称)
+            },
+            "synonyms": list(专有词汇的同义词。同义词需拼接成string，用逗号分隔，不超过1024个字符)
+        }
+        :return:
+        """
+        params = {
+            "term_item": term_item
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/dictionary/term/create", params, opts)
+        body = self.process_common_request(request)
+        return DictionaryTerm.from_dict(body)
+
+    def update_dictionary_term(self, term_item: dict, **kwargs):
+        """
+        更新专有词汇
+        该接口用于更新专有词汇，包括更新专有词汇的名称和同义词。
+        :param term_item: dict(专有词汇)
+        :param kwargs:
+        term_item:
+        {
+            "term"【required】(专有词汇详情): {
+                "id"【required】: int(专有词汇id)
+                "name": str(专有词汇的名称。如果不传入该字段，则表示不修改名称)
+            },
+            "synonyms": list(专有词汇的同义词。如果不传这个字段(或传入空列表)，代表不做修改；
+                如果传入非空列表，代表把以前的同义词删除，重新添加。同义词需拼接成string，用逗号分隔，不超过1024个字符)
+        }
+        :return:
+        """
+        params = {
+            "term_item": term_item
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/dictionary/term/update", params, opts)
+        body = self.process_common_request(request)
+        return DictionaryTerm.from_dict(body)
+
+    def delete_dictionary_term(self, term_id: str, **kwargs):
+        """
+        更新专有词汇
+        该接口用于更新专有词汇，包括更新专有词汇的名称和同义词。
+        :param term_id: str(专有词汇id)
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "id": term_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/dictionary/term/delete", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def dictionary_entity(self, entity_id: int, **kwargs):
+        """
+        查询一个实体详情
+        查询一个实体的详情，包括实体ID、实体名称、实体类型和实体值。
+        :param entity_id: int(实体id)
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "id": entity_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/dictionary/entity/get", params, opts)
+        body = self.process_common_request(request)
+        return DictionaryEntity.from_dict(body)
+
+    def create_dictionary_entity_enumeration(self, enum_entity: dict, **kwargs):
+        """
+        创建枚举实体
+        创建一个枚举实体。
+        注：枚举实体的实体值需要通过「创建枚举实体值」接口创建。
+        :param enum_entity: dict(枚举实体)
+        :param kwargs:
+        enum_entity:
+        {
+            "name"【required】: str(实体名称) [ 1 .. 200 ] characters
+        }
+        :return:
+        """
+        params = {
+            "enum_entity": enum_entity
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/dictionary/entity/enumeration/create", params, opts)
+        body = self.process_common_request(request)
+        return CreateEnumEntity.from_dict(body)
+
+    def create_dictionary_entity_enumeration_value(self, entity_id: int, value: dict, **kwargs):
+        """
+        创建枚举实体值
+        给一个枚举实体添加实体值，包括标准值及其相似说法。
+        :param entity_id: int(实体id)
+        :param value: dict(枚举实体值)
+        :param kwargs:
+        value:
+        {
+            "synonyms": list(标准值的相似说法),
+            "standard_value"【required】: str(标准值(归一化值)) [ 1 .. 200 ] characters
+        }
+        :return:
+        """
+        params = {
+            "entity_id": entity_id,
+            "value": value
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/dictionary/entity/enumeration/value/create", params, opts)
+        body = self.process_common_request(request)
+        return CreateEnumEntityValue.from_dict(body)
+
+    def delete_dictionary_entity_enumeration_value(self, entity_id: int, value: dict, **kwargs):
+        """
+        删除枚举实体值
+        删除枚举实体的一个实体值，或实体值的若干相似说法。
+        如果 value 中只传入了 standard_value，会删除这个实体值和其对应的所有相似说法；
+        如果 value 中传入了standard_value 和 synonyms，会删除这个实体值中 synonym 传入的相似说法。
+        :param entity_id: int(实体id)
+        :param value: dict(枚举实体值)
+        :param kwargs:
+        value:
+        {
+            "synonyms": list(标准值的相似说法),
+            "standard_value"【required】: str(标准值(归一化值)) [ 1 .. 200 ] characters
+        }
+        :return:
+        """
+        params = {
+            "entity_id": entity_id,
+            "value": value
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/dictionary/entity/enumeration/value/delete", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def create_dictionary_entity_intent(self, intent_entity: dict, **kwargs):
+        """
+        创建意图实体
+        创建一个意图实体，及其标准值。
+        注：意图实体的相似说法需要通过「创建意图实体值相似说法」接口创建。
+        :param intent_entity: dict(意图实体)
+        :param kwargs:
+        intent_entity:
+        {
+            "standard_value"【required】: str(标准值) [ 1 .. 200 ] characters
+            "name"【required】: str(实体名称) [ 1 .. 200 ] characters
+        }
+        :return:
+        """
+        params = {
+            "intent_entity": intent_entity
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/dictionary/entity/intent/create", params, opts)
+        body = self.process_common_request(request)
+        return CreateIntentEntity.from_dict(body)
+
+    def create_dictionary_entity_intent_value(self, entity_id: int, synonyms: list, **kwargs):
+        """
+        创建意图实体值相似说法
+        给一个意图实体添加相似说法。
+        :param entity_id: int(实体id)
+        :param synonyms: list(意图实体值的相似说法) [ 1 .. 200 ] characters
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "entity_id": entity_id,
+            "synonyms": synonyms
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/dictionary/entity/intent/value/create", params, opts)
+        body = self.process_common_request(request)
+        return CreateIntentEntityValue.from_dict(body)
+
+    def delete_dictionary_entity_intent_value(self, entity_id: int, synonyms: list, **kwargs):
+        """
+        删除意图实体值相似说法
+        :param entity_id: int(实体id)
+        :param synonyms: list(意图实体值的相似说法) [ 1 .. 200 ] characters
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "entity_id": entity_id,
+            "synonyms": synonyms
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/dictionary/entity/intent/value/delete", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def delete_dictionary_entity(self, entity_id: int, **kwargs):
+        """
+        删除实体
+        删除一个实体。
+        注：预设实体不可删除。
+        :param entity_id: int(实体id)
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "id": entity_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/dictionary/entity/delete", params, opts)
+        body = self.process_common_request(request)
+        return body
+
