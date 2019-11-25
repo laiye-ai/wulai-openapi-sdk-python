@@ -1,7 +1,7 @@
 from typing import List
+
 from wulaisdk.response import BaseModel
-from wulaisdk.response.msg_body import MsgBody
-from wulaisdk.response.bot import Bot
+from wulaisdk.response.bot import Response
 
 
 class QA(BaseModel):
@@ -13,33 +13,6 @@ class QA(BaseModel):
         self.knowledge_id = knowledge_id
         self.standard_question = standard_question
         self.question = question
-
-
-class SimilarResponse(BaseModel):
-    url: str
-    source: str
-    detail: Bot
-
-    def __init__(self, url: str, source: str, detail: Bot) -> None:
-        self.url = url
-        self.source = source
-        self.detail = Bot.from_dict(detail)
-
-
-class Response(BaseModel):
-    msg_body: MsgBody
-    similar_response: List[SimilarResponse]
-    enable_evaluate: bool
-    delay_ts: int
-    extra: str
-
-    def __init__(self, msg_body: MsgBody, similar_response: List[SimilarResponse], enable_evaluate: bool,
-                 delay_ts: int, extra: str) -> None:
-        self.msg_body = MsgBody.from_dict(msg_body)
-        self.similar_response = [SimilarResponse.from_dict(sr) for sr in similar_response]
-        self.enable_evaluate = enable_evaluate
-        self.delay_ts = delay_ts
-        self.extra = extra
 
 
 class QASuggestedResponse(BaseModel):
