@@ -1,3 +1,7 @@
+### version 1.1.4
+#### updated 20191125
+1. 更新词库管理类api
+
 ### version 1.1.3
 #### updated 20191106
 1. 更新统计类相关api
