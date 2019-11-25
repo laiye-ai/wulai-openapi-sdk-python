@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import pytest
 
@@ -9,6 +10,13 @@ from wulaisdk.exceptions import ClientException
 pubkey = os.getenv("PUBKEY", "")
 secret = os.getenv("SECRET", "")
 log_dir_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+# 区分3.6和3.7的测试内容
+if sys.version_info.minor == 7:
+    tag = "v3.7"
+else:
+    tag = "v3.6"
 
 
 #############################################################
@@ -41,11 +49,11 @@ def test_dictionary_entities(page, page_size):
 # 专有词汇
 @pytest.mark.parametrize('term_item_create,term_item_update,page,page_size', [
     ({
-        "term": {"name": "yt_专有名词_1"},
-        "synonyms": ["yt_专有名词_1", "yt_名词_1", "专有名词_1"]
+        "term": {"name": f"yt_专有名词_1_{tag}"},
+        "synonyms": [f"yt_专有名词_1", f"yt_名词_1", f"专有名词_1"]
     }, {
-        "term": {"id": "", "name": "yt_专有名词_1_update"},
-        "synonyms": ["yt_专有名词_1"]
+        "term": {"id": "", "name": f"yt_专有名词_1_update"},
+        "synonyms": [f"yt_专有名词_1"]
     }, 1, 50),
 ])
 def test_dictionary_term(term_item_create, term_item_update, page, page_size):
@@ -74,7 +82,7 @@ def test_dictionary_term(term_item_create, term_item_update, page, page_size):
 
 # 枚举实体
 @pytest.mark.parametrize('enum_entity, entity_value, entity_value_part, entity_value_total', [
-    ({"name": "枚举实体测试1"},
+    ({"name": f"枚举实体测试1_{tag}"},
      {"synonyms": ["标准值1", "标准1", "准值1"], "standard_value": "标准值1"},
      {"synonyms": ["准值1"], "standard_value": "标准值1"},
      {"standard_value": "标准值1"},
@@ -112,7 +120,7 @@ def test_dictionary_entities_enum(enum_entity, entity_value, entity_value_part, 
 
 # 意图实体
 @pytest.mark.parametrize('intent_entity, entity_value_update, entity_value_delete', [
-    ({"standard_value": "发烧", "name": "意图实体测试1"},
+    ({"standard_value": "发烧", "name": f"意图实体测试1_{tag}"},
      ["体温有点高", "额头发热", "发烧"],
      ["额头发热"],
      ),
