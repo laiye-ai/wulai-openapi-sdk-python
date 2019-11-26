@@ -24,6 +24,7 @@ from wulaisdk.response.user_attribute_group import CreateUserAttributeGroup, Upd
 from wulaisdk.response.stats import StatsQASatisfactionKnowledgeDaily, StatsQARecallDaily, StatasQARecallDailyKnowledges
 from wulaisdk.response.dictionary import DictionaryEntities, DictionaryTerms, DictionaryTerm, \
     DictionaryEntity, CreateEnumEntity, CreateEnumEntityValue, CreateIntentEntity, CreateIntentEntityValue
+from wulaisdk.response.nlp import EntityExtract, Tokenize
 
 
 DEBUG = False
@@ -1456,3 +1457,37 @@ class WulaiClient:
         body = self.process_common_request(request)
         return body
 
+    # 自然语言处理类
+    def entities_extract(self, query: str, **kwargs):
+        """
+        实体抽取
+        该接口用于实体抽取。
+        :param query: str(待实体抽取query)
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "query": query
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/nlp/entities/extract", params, opts)
+        body = self.process_common_request(request)
+        return EntityExtract.from_dict(body)
+
+    def tokenize(self, query: str, **kwargs):
+        """
+        分词&词性标注
+        该接口用于分词以及词性标注。
+        :param query: str(待分词的query [ 1 .. 1024 ] characters)
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "query": query
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/nlp/tokenize", params, opts)
+        body = self.process_common_request(request)
+        return Tokenize.from_dict(body)
