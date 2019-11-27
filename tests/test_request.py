@@ -97,14 +97,10 @@ def test_set_headers(headers, excepted):
     assert request.headers == excepted
 
 
-@pytest.mark.parametrize('k,v,excepted', [
-    ("a", 1, {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "a": 1
-    }),
+@pytest.mark.parametrize('k,v', [
+    ("a", 1),
 ])
-def test_add_headers(k,v, excepted):
+def test_add_headers(k, v):
     action = '/user/create'
     params = {
      "avatar_url": "",
@@ -118,5 +114,15 @@ def test_add_headers(k,v, excepted):
     }
     request = CommonRequest(action, params, opts)
     request.add_headers(k, v)
-    assert request.headers == excepted
+    # now headers
+    # {
+    #     "Accept": "application/json",
+    #     "Content-Type": "application/json",
+    #     "a": 1,
+    #     "User-Agent": "xxx"
+    # }
+    assert "a" in request.headers
+    assert "Accept" in request.headers
+    assert "Content-Type" in request.headers
+    assert "User-Agent" in request.headers
 
