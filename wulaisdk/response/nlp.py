@@ -1,3 +1,6 @@
+"""
+自然语言处理类
+"""
 from wulaisdk.response import BaseModel
 from typing import List
 

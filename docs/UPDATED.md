@@ -1,3 +1,9 @@
+### version 1.1.5
+#### updated 20191206
+1. 更新自然语言处理类api
+2. headers中增加版本信息
+3. 更新任务类api
+
 ### version 1.1.4
 #### updated 20191125
 1. 更新词库管理类api
