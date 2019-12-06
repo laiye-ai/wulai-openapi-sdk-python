@@ -24,6 +24,12 @@ from wulaisdk.response.user_attribute_group import CreateUserAttributeGroup, Upd
 from wulaisdk.response.stats import StatsQASatisfactionKnowledgeDaily, StatsQARecallDaily, StatasQARecallDailyKnowledges
 from wulaisdk.response.dictionary import DictionaryEntities, DictionaryTerms, DictionaryTerm, \
     DictionaryEntity, CreateEnumEntity, CreateEnumEntityValue, CreateIntentEntity, CreateIntentEntityValue
+from wulaisdk.response.nlp import EntityExtract, Tokenize
+from wulaisdk.response.task import Scenes, CreateScene, UpdateScene, Intents, CreateIntent, UpdateIntent,\
+    IntentTriggers, CreateIntentTrigger, UpdateIntentTrigger, Slots, CreateSlot, UpdateSlot, SlotDataSource, GetSlot,\
+    CreateSlotDataSource, GetInformBlock, CreateInformBlock, UpdateInformBlock, GetRequestBlock,\
+    CreateRequestBlock, UpdateRequestBlock, CreateResponse, UpdateResponse, GetEndBlock, CreateEndBlock,\
+    UpdateEndBlock, CreateBlockRelation, IntentTriggerLearning, UpdateIntentStatus, Blocks
 
 
 DEBUG = False
@@ -980,7 +986,9 @@ class WulaiClient:
         """
         创建属性组回复
         该接口可创建属性组回复，具体内容包括属性组回复所关联的知识点、和属性组回复的消息内容。
-        注:只有当知识点id已经在吾来平台中创建后，才可通过该接口创建属性组回复。如果知识点id尚未在系统中创建，则无法成功创建属性组回复
+        注:
+        只有当知识点id已经在吾来平台中创建后，才可通过该接口创建属性组回复。如果知识点id尚未在系统中创建，则无法成功创建属性组回复
+        如需创建知识点详情中的通用答案（不区分属性组），则 user_attribute_group_id 传入0.
         :param user_attribute_group_answer: dict(属性组)
         {
             "answer"【required】: dict(回复)
@@ -1009,6 +1017,8 @@ class WulaiClient:
         """
         更新属性组回复
         该接口可更新属性组回复，具体内容包括属性组回复所关联的知识点、和属性组回复的消息内容。
+        注:
+        如需更新知识点的通用答案（不区分属性组），则 user_attribute_group_id 传入0.
         :param user_attribute_group_answer: dict(属性组)
         {
             "answer"【required】: dict(回复)
@@ -1455,4 +1465,996 @@ class WulaiClient:
         request = CommonRequest("/dictionary/entity/delete", params, opts)
         body = self.process_common_request(request)
         return body
+
+    # 自然语言处理类
+    def entities_extract(self, query: str, **kwargs):
+        """
+        实体抽取
+        该接口用于实体抽取。
+        :param query: str(待实体抽取query)
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "query": query
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/nlp/entities/extract", params, opts)
+        body = self.process_common_request(request)
+        return EntityExtract.from_dict(body)
+
+    def tokenize(self, query: str, **kwargs):
+        """
+        分词&词性标注
+        该接口用于分词以及词性标注。
+        :param query: str(待分词的query [ 1 .. 1024 ] characters)
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "query": query
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/nlp/tokenize", params, opts)
+        body = self.process_common_request(request)
+        return Tokenize.from_dict(body)
+
+    # 任务类
+    def scenes(self, **kwargs):
+        """
+        查询场景列表
+        查询任务对话中的所有场景。
+        :param kwargs:
+        :return:
+        """
+        params = {}
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/list", params, opts)
+        body = self.process_common_request(request)
+        return Scenes.from_dict(body)
+
+    def create_scene(self, scene: dict, **kwargs):
+        """
+        创建场景
+        创建任务对话中的一个场景。
+        :param scene: dict(任务)
+        :param kwargs:
+        scene:
+        {
+            "intent_switch_mode"【required】: str(意图切换模式(在意图流程中，当用户消息既可以在当前意图中填槽、又可以触发其他意图时，优先选择的处理方式。).),
+                INTENT_SWITCH_MODE_SWITCH: 优先切换到其他意图
+                INTENT_SWITCH_MODE_STAY: 优先停留在当前意图并填槽
+            "name"【required】: str(场景名称) [ 1 .. 200 ] characters,
+            "smart_slot_filling_threshold": float(智能填槽阈值) <= 1,
+            "description": str(场景描述) <= 600 characters
+        }
+        :return:
+        """
+        params = {
+            "scene": scene
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/create", params, opts)
+        body = self.process_common_request(request)
+        return CreateScene.from_dict(body)
+
+    def update_scene(self, scene: dict, **kwargs):
+        """
+        更新场景
+        更新任务对话中的一个场景。
+        :param scene: dict(任务)
+        :param kwargs:
+        scene:
+        {
+            "intent_switch_mode": str(意图切换模式(在意图流程中，当用户消息既可以在当前意图中填槽、又可以触发其他意图时，优先选择的处理方式。).),
+                INTENT_SWITCH_MODE_SWITCH: 优先切换到其他意图
+                INTENT_SWITCH_MODE_STAY: 优先停留在当前意图并填槽
+            "name": str(场景名称) [ 1 .. 200 ] characters,
+            "smart_slot_filling_threshold": float(智能填槽阈值) <= 1,
+            "description": str(场景描述) <= 600 characters,
+            "id"【required】: int(场景ID) >= 1
+        }
+        :return:
+        """
+        params = {
+            "scene": scene
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/update", params, opts)
+        body = self.process_common_request(request)
+        return UpdateScene.from_dict(body)
+
+    def delete_scene(self, scene_id: int, **kwargs):
+        """
+        删除场景
+        删除任务对话中的一个场景。
+        :param scene_id: int(场景ID) >= 1
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "id": scene_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/delete", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def intents(self, scene_id: int, **kwargs):
+        """
+        查询意图列表
+        查询一个场景下的所有意图。
+        :param scene_id: int(意图所属的场景ID) >= 1
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "scene_id": scene_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/intent/list", params, opts)
+        body = self.process_common_request(request)
+        return Intents.from_dict(body)
+
+    def create_intent(self, intent: dict, **kwargs):
+        """
+        创建意图
+        创建场景下的一个意图。
+        注: 只有当一个场景已经在吾来平台中创建后，才可在当前接口中传入其ID。如果场景ID尚未创建，则无法成功创建意图。
+        :param intent: dict(意图)
+        :param kwargs:
+        intent:
+        {
+            "scene_id"【required】: int(意图所属场景ID) >= 1,
+            "name"【required】: str(意图名称) [1 .. 200 ] characters,
+            "lifespan_mins": int(意图闲置等待时长（分钟），默认3分钟) <= 60
+        }
+        :return:
+        """
+        params = {
+            "intent": intent
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/intent/create", params, opts)
+        body = self.process_common_request(request)
+        return CreateIntent.from_dict(body)
+
+    def update_intent(self, intent: dict, **kwargs):
+        """
+        更新意图
+        更新场景下的一个意图。
+        :param intent: dict(意图)
+        :param kwargs:
+        intent:
+        {
+            "id"【required】: int(意图ID) >= 1,
+            "name": str(意图名称) [1 .. 200 ] characters,
+            "lifespan_mins": int(意图闲置等待时长（分钟），默认3分钟) <= 60
+        }
+        :return:
+        """
+        params = {
+            "intent": intent
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/intent/update", params, opts)
+        body = self.process_common_request(request)
+        return UpdateIntent.from_dict(body)
+
+    def delete_intent(self, intent_id: int, **kwargs):
+        """
+        删除意图
+        删除场景下的一个意图。
+        :param intent_id: int(意图ID) >= 1
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "id": intent_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/intent/delete", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def intent_triggers(self, intent_id: int, page: int, page_size: int, **kwargs):
+        """
+        查询触发器列表
+        查询一个意图中的所有触发器内容。
+        :param intent_id: int(意图ID) >= 1
+        :param page: int (页码，代表查看第几页的数据，从1开始) >= 1
+        :param page_size: int (每页的触发器数量) [ 1 .. 200 ]
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "intent_id": intent_id,
+            "page": page,
+            "page_size": page_size,
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/intent/trigger/list", params, opts)
+        body = self.process_common_request(request)
+        return IntentTriggers.from_dict(body)
+
+    def create_intent_trigger(self, intent_trigger: dict, **kwargs):
+        """
+        创建触发器
+        创建一条触发器内容。触发器的文本匹配模式可以选择：完全匹配的关键词，包含匹配的关键词，或者相似说法。
+        :param intent_trigger: dict(触发器)
+        :param kwargs:
+        intent:
+        {
+            "intent_id"【required】: int(触发器对应的意图ID) >= 1,
+            "text"【required】: str(触发文本) [1 .. 200 ] characters,
+            "type"【required】: str(触发器模式.)
+                            TRIGGER_TYPE_ERROR: 错误
+                            TRIGGER_TYPE_EXACT_MATCH_KEYWORD: 关键词完全匹配
+                            TRIGGER_TYPE_INCLUDE_KEYWORD: 关键词包含匹配
+                            TRIGGER_TYPE_SENTENCE: 相似说法
+        }
+        :return:
+        """
+        params = {
+            "intent_trigger": intent_trigger
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/intent/trigger/create", params, opts)
+        body = self.process_common_request(request)
+        return CreateIntentTrigger.from_dict(body)
+
+    def update_intent_trigger(self, intent_trigger: dict, **kwargs):
+        """
+        更新触发器
+        更新一条触发器内容。
+        :param intent_trigger: dict(触发器)
+        :param kwargs:
+        intent:
+        {
+            "id"【required】: int(触发器ID) >= 1,
+            "text": str(触发文本) [1 .. 200 ] characters,
+        }
+        :return:
+        """
+        params = {
+            "intent_trigger": intent_trigger
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/intent/trigger/update", params, opts)
+        body = self.process_common_request(request)
+        return UpdateIntentTrigger.from_dict(body)
+
+    def delete_intent_trigger(self, intent_trigger_id: int, **kwargs):
+        """
+        删除触发器
+        删除一条触发器内容。
+        :param intent_trigger_id: int(触发器ID) >= 1
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "id": intent_trigger_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/intent/trigger/delete", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def slots(self, scene_id: int, page: int, page_size: int, **kwargs):
+        """
+        查询词槽列表
+        查询一个场景下的所有词槽ID和词槽名称。
+        :param scene_id: int(词槽所属的场景ID) >= 1
+        :param page: int (页码，代表查看第几页的数据，从1开始) >= 1
+        :param page_size: int (每页的词槽数量) [ 1 .. 200 ]
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "scene_id": scene_id,
+            "page": page,
+            "page_size": page_size
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/slot/list", params, opts)
+        body = self.process_common_request(request)
+        return Slots.from_dict(body)
+
+    def create_slot(self, slot: dict, **kwargs):
+        """
+        创建词槽
+        创建词槽，包括设置词槽是否允许整句填槽。
+
+        注：整句填槽指的是，当未识别到引用实体时，将用户的整句话填充到词槽。
+        :param slot: dict(词槽)
+        :param kwargs:
+        slot:
+        {
+            "scene_id"【required】: int(词槽所属的场景ID) >= 1,
+            "name"【required】: str(词槽名称) [ 1 .. 200 ] characters,
+            "query_slot_filling": bool (是否允许整句填槽, 默认关闭)
+                                True: 开启
+                                False: 关闭
+        }
+        :return:
+        """
+        params = {
+            "slot": slot
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/slot/create", params, opts)
+        body = self.process_common_request(request)
+        return CreateSlot.from_dict(body)
+
+    def update_slot(self, slot: dict, **kwargs):
+        """
+        更新词槽
+        更新词槽。
+        :param slot: dict(词槽)
+        :param kwargs:
+        slot:
+        {
+            "id"【required】: int(词槽ID),
+            "name": str(词槽名称) [ 1 .. 200 ] characters,
+            "query_slot_filling": bool (是否允许整句填槽, 默认关闭)
+                                True: 开启
+                                False: 关闭
+        }
+        :return:
+        """
+        params = {
+            "slot": slot
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/slot/update", params, opts)
+        body = self.process_common_request(request)
+        return UpdateSlot.from_dict(body)
+
+    def get_slot(self, slot_id: int, **kwargs):
+        """
+        查询词槽
+        查询一个词槽的详情。
+        :param slot_id: int(词槽ID) >= 1
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "id": slot_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/slot/get", params, opts)
+        body = self.process_common_request(request)
+        return GetSlot.from_dict(body)
+
+    def delete_slot(self, slot_id: int, **kwargs):
+        """
+        删除词槽
+        删除词槽。
+        :param slot_id: int(词槽ID) >= 1
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "id": slot_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/slot/delete", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def slot_data_source(self, slot_id: int, **kwargs):
+        """
+        查询词槽数据来源
+        查询一个词槽的所有数据来源。
+        :param slot_id: int(词槽ID) >= 1
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "slot_id": slot_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/slot/data-source/list", params, opts)
+        body = self.process_common_request(request)
+        return SlotDataSource.from_dict(body)
+
+    def create_slot_data_source(self, data_source: dict, **kwargs):
+        """
+        创建词槽数据来源
+        创建词槽数据来源即定义词槽的引用实体，将实体与词槽关联起来。
+
+        注：必须先创建词槽和实体后，才可以创建词槽数据来源。
+        :param data_source: dict(词槽数据来源)
+        :param kwargs:
+        data_source:
+        {
+            "entity_id"【required】: int (实体ID) >= 1,
+            "slot_id"【required】: int (词槽ID) >= 1
+        }
+        :return:
+        """
+        params = {
+            "data_source": data_source
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/slot/data-source/create", params, opts)
+        body = self.process_common_request(request)
+        return CreateSlotDataSource.from_dict(body)
+
+    def delete_slot_data_source(self, slot_data_source_id: int, **kwargs):
+        """
+        删除词槽数据来源
+        删除词槽数据来源。
+        :param slot_data_source_id: int(词槽数据来源ID) >= 1
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "id": slot_data_source_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/slot/data-source/delete", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def inform_block(self, block_id: int, **kwargs):
+        """
+        查询消息发送单元
+        查询一个消息发送单元的详情，包括单元设置、单元回复、和该单元与其他单元的跳转关系。
+        :param block_id: int(单元ID) >= 1
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "id": block_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/block/inform-block/get", params, opts)
+        body = self.process_common_request(request)
+        return GetInformBlock.from_dict(body)
+
+    def create_inform_block(self, block: dict, **kwargs):
+        """
+        创建消息发送单元
+        创建一个消息发送单元。
+        :param block: dict (消息发送单元)
+        :param kwargs:
+        block:
+        {
+            "intent_id"【required】: int (所属意图ID) >= 1,
+            "name"【required】: str (单元名称) [ 1 .. 200 ] characters,
+            "mode"【required】: str (单元回复类型.)
+                            RESPONSE_ERROR: 错误
+                            RESPONSE_RANDOM: 随机回复
+                            RESPONSE_ALL: 全部回复
+                            RESPONSE_LOOP: 依次回复
+        }
+        :return:
+        """
+        params = {
+            "block": block
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/block/inform-block/create", params, opts)
+        body = self.process_common_request(request)
+        return CreateInformBlock.from_dict(body)
+
+    def update_inform_block(self, block: dict, **kwargs):
+        """
+        更新消息发送单元
+        更新一个消息发送单元。
+        :param block: dict (消息发送单元)
+        :param kwargs:
+        block:
+        {
+            "id"【required】: int (单元ID) >= 1,
+            "name": str (单元名称) [ 1 .. 200 ] characters,
+            "mode": str (单元回复类型.)
+                RESPONSE_ERROR: 错误
+                RESPONSE_RANDOM: 随机回复
+                RESPONSE_ALL: 全部回复
+                RESPONSE_LOOP: 依次回复
+        }
+        :return:
+        """
+        params = {
+            "block": block
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/block/inform-block/update", params, opts)
+        body = self.process_common_request(request)
+        return UpdateInformBlock.from_dict(body)
+
+    def request_block(self, block_id: int, **kwargs):
+        """
+        查询询问填槽单元
+        查询一个询问填槽单元的详情，包括单元设置、单元回复、该单元与其他单元的跳转关系等。
+
+        注：必须先创建一个词槽，才可以在单元中使用它作为关联词槽。
+        :param block_id: int(单元ID) >= 1
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "id": block_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/block/request-block/get", params, opts)
+        body = self.process_common_request(request)
+        return GetRequestBlock.from_dict(body)
+
+    def create_request_block(self, block: dict, **kwargs):
+        """
+        创建询问填槽单元
+        创建一个询问填槽单元。
+
+        注：必须先创建一个词槽，才可以在单元中使用它作为关联词槽。
+        :param block: dict (询问填槽单元)
+        :param kwargs:
+        block:
+        {
+            "intent_id"【required】: int (所属意图ID) >= 1,
+            "name"【required】: str (单元名称) [ 1 .. 200 ] characters,
+            "slot_id"【required】: int (绑定的词槽ID) >= 1,
+            "default_slot_value": str (默认词槽值) <= 200 characters,
+            "slot_filling_when_asked": bool (是否仅询问时填槽),
+                                    默认否
+                                    True: 仅在当前单元询问时才填充关联词槽
+                                    False: 即使机器人并没有询问，如果用户消息中有可以填槽的信息，也填充关联词槽
+            "mode"【required】: str (单元回复类型.),
+                            RESPONSE_ERROR: 错误
+                            RESPONSE_RANDOM: 随机回复
+                            RESPONSE_ALL: 全部回复
+                            RESPONSE_LOOP: 依次回复
+            "request_count": int (询问次数，默认3次) <= 200
+        }
+        :return:
+        """
+        params = {
+            "block": block
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/block/request-block/create", params, opts)
+        body = self.process_common_request(request)
+        return CreateRequestBlock.from_dict(body)
+
+    def update_request_block(self, block: dict, **kwargs):
+        """
+        更新询问填槽单元
+        更新一个询问填槽单元。
+
+        注：必须先创建一个词槽，才可以在单元中使用它作为关联词槽。
+        :param block: dict (询问填槽单元)
+        :param kwargs:
+        block:
+        {
+            "id"【required】: int (单元ID) >= 1,
+            "name": str (单元名称) [ 1 .. 200 ] characters,
+            "slot_id": int (绑定的词槽ID) >= 1,
+            "default_slot_value": str (默认词槽值) <= 200 characters,
+            "slot_filling_when_asked": bool (是否仅询问时填槽),
+                                    默认否
+                                    True: 仅在当前单元询问时才填充关联词槽
+                                    False: 即使机器人并没有询问，如果用户消息中有可以填槽的信息，也填充关联词槽
+            "mode": str (单元回复类型.),
+                RESPONSE_ERROR: 错误
+                RESPONSE_RANDOM: 随机回复
+                RESPONSE_ALL: 全部回复
+                RESPONSE_LOOP: 依次回复
+            "request_count": int (询问次数，默认3次) <= 200
+        }
+        :return:
+        """
+        params = {
+            "block": block
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/block/request-block/update", params, opts)
+        body = self.process_common_request(request)
+        return UpdateRequestBlock.from_dict(body)
+
+    def create_block_response(self, response: dict, **kwargs):
+        """
+        创建单元内回复
+        给询问填槽单元或消息发送单元添加一条回复。
+        :param response: dict (单元内回复)
+        :param kwargs:
+        response:
+        {
+            "block_id"【required】: int (单元ID) >= 1,
+            "response"【required】: dict (消息体格式，任意选择一种消息类型（文本 / 图片 / 语音 / 视频 / 文件 / 图文 / 自定义消息）填充)
+        }
+        response:
+        文本消息
+        {"text": {"content"【required】: str}}
+        图片消息
+        {"image": {"resource_url"【required】: str}}
+        自定义消息
+        {"custom": {"content"【required】: str}}
+        视频消息
+        {"video": {"resource_url"【required】: str(资源链接), "thumb": str(缩略图), "description": str(描述), "title": str(标题)}}
+        文件消息
+        {"file": {"file_name": "str", "resource_url"【required】: "str"}}
+        语音消息
+        {
+        "voice": {
+            "resource_url"【required】: str,
+            "type": "AMR"(default AMR, one of AMR PCM WAV OPUS SPEEX MP3),
+            "recognition": str(语音识别文本结果)
+            }
+        }
+        卡片消息
+        {
+        "share_link": {
+            "description": str(文字描述),
+            "destination_url"【required】: str(链接目标地址),
+            "cover_url"【required】: str(封面图片地址),
+            "title"【required】: str(链接的文字标题)
+            }
+        }
+        图文消息
+        {"rich_text": {"resource_url"【required】: str}}
+        :return:
+        """
+        params = {
+            "response": response
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/block/response/create", params, opts)
+        body = self.process_common_request(request)
+        return CreateResponse.from_dict(body)
+
+    def update_block_response(self, response: dict, **kwargs):
+        """
+        更新单元内回复
+        给询问填槽单元或消息发送单元更新一条回复。
+        :param response: dict (单元内回复)
+        :param kwargs:
+        response:
+        {
+            "id"【required】: int (回复ID) >= 1,
+            "response"【required】: dict (消息体格式，任意选择一种消息类型（文本 / 图片 / 语音 / 视频 / 文件 / 图文 / 自定义消息）填充)
+        }
+        response:
+        文本消息
+        {"text": {"content"【required】: str}}
+        图片消息
+        {"image": {"resource_url"【required】: str}}
+        自定义消息
+        {"custom": {"content"【required】: str}}
+        视频消息
+        {"video": {"resource_url"【required】: str(资源链接), "thumb": str(缩略图), "description": str(描述), "title": str(标题)}}
+        文件消息
+        {"file": {"file_name": "str", "resource_url"【required】: "str"}}
+        语音消息
+        {
+        "voice": {
+            "resource_url"【required】: str,
+            "type": "AMR"(default AMR, one of AMR PCM WAV OPUS SPEEX MP3),
+            "recognition": str(语音识别文本结果)
+            }
+        }
+        卡片消息
+        {
+        "share_link": {
+            "description": str(文字描述),
+            "destination_url"【required】: str(链接目标地址),
+            "cover_url"【required】: str(封面图片地址),
+            "title"【required】: str(链接的文字标题)
+            }
+        }
+        图文消息
+        {"rich_text": {"resource_url"【required】: str}}
+        :return:
+        """
+        params = {
+            "response": response
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/block/response/update", params, opts)
+        body = self.process_common_request(request)
+        return UpdateResponse.from_dict(body)
+
+    def delete_block_response(self, response_id: int, **kwargs):
+        """
+        删除单元内回复
+        删除一条单元内回复。
+        :param response_id: int (回复ID) >= 1
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "id": response_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/block/response/delete", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def end_block(self, block_id: int, **kwargs):
+        """
+        查询意图终点单元
+        查询一个意图终点单元的详情。
+        :param block_id: int (单元ID) >= 1
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "id": block_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/block/end-block/get", params, opts)
+        body = self.process_common_request(request)
+        return GetEndBlock.from_dict(body)
+
+    def create_end_block(self, block: dict, **kwargs):
+        """
+        创建意图终点单元
+        创建一个意图终点单元。
+
+        注：意图终点单元如果要跳转到一个指定意图，该意图必须先被创建。
+        :param block: dict (意图终点单元)
+        :param kwargs:
+        block:
+        {
+            "action": dict(结束单元跳转方式 (指定意图 / 上个意图 / 不跳转)),
+            "intent_id"【required】: int(所属意图ID) >= 1,
+            "name"【required】: str(单元名称) [ 1 .. 200 ] characters,
+            "slot_memorizing": bool(是否保存词槽值)
+                            默认关闭
+                            True: 开启
+                            False: 关闭
+        }
+        action:
+        意图终点单元跳转上个意图:
+        {"last": {}}
+        意图终点单元不跳转:
+        {"end": {}}
+        意图终点单元跳转指定意图:
+        {"specified"【required】: {"id": int (意图ID) >= 1}}
+        :return:
+        """
+        params = {
+            "block": block
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/block/end-block/create", params, opts)
+        body = self.process_common_request(request)
+        return CreateEndBlock.from_dict(body)
+
+    def update_end_block(self, block: dict, **kwargs):
+        """
+        更新意图终点单元
+        更新一个意图终点单元。
+        :param block: dict (意图终点单元)
+        :param kwargs:
+        block:
+        {
+            "action": dict(结束单元跳转方式 (指定意图 / 上个意图 / 不跳转)),
+            "id"【required】: int(单元ID) >= 1,
+            "name": str(单元名称) [ 1 .. 200 ] characters,
+            "slot_memorizing": bool(是否保存词槽值)
+                            默认关闭
+                            True: 开启
+                            False: 关闭
+        }
+        action:
+        意图终点单元跳转上个意图:
+        {"last": {}}
+        意图终点单元不跳转:
+        {"end": {}}
+        意图终点单元跳转指定意图:
+        {"specified"【required】: {"id": int (意图ID) >= 1}}
+        :return:
+        """
+        params = {
+            "block": block
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/block/end-block/update", params, opts)
+        body = self.process_common_request(request)
+        return UpdateEndBlock.from_dict(body)
+
+    def blocks(self, intent_id: int, page: int, page_size: int, **kwargs):
+        """
+        查询单元列表
+        查询意图里的所有单元。
+        :param intent_id: int (意图ID) >= 1
+        :param page: int (页码，代表查看第几页的数据，从1开始) >= 1
+        :param page_size: int (每页的单元数量) [ 1 .. 200 ]
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "intent_id": intent_id,
+            "page": page,
+            "page_size": page_size
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/block/list", params, opts)
+        body = self.process_common_request(request)
+        return Blocks.from_dict(body)
+
+    def create_block_relation(self, relation: dict, **kwargs):
+        """
+        创建单元关系
+        创建单元与单元之间的跳转关系，包括当前单元、下一个单元、以及跳转条件。
+        :param relation: dict (单元关系)
+        :param kwargs:
+        relation:
+        {
+            "connection": dict(单元关系),
+            "intent_id": int(意图ID) >= 1
+        }
+        connection:
+        {
+            "from_block_id"【required】: int(当前单元ID) >= 1,
+            "to_block_id"【required】: int(下一个单元ID) >= 1,
+            "condition": dict(单元跳转条件(默认 / 大于 / 大于等于 / 小于 / 小于等于 / 等于 / 不等于 / 包含 / 不包含 / 属于实体 / 不属于实体 / 符合正则 / 不符合正则))
+        }
+        condition:
+        默认
+        {"default": {}}
+        属于(实体)
+        {"in_entity": {"id": int}}
+        不属于(实体)
+        {"not_in_entity": {"id": int}}
+        等于
+        {"equal_to": {"value": str}}
+        不等于
+        {"not_equal_to": {"value": str}}
+        大于
+        {"greater_than": {"value": float}}
+        大于等于
+        {"greater_than_or_equal_to": {"value": float}}
+        小于
+        {"less_than": {"value": float}}
+        小于等于
+        {"less_than_or_equal_to": {"value": float}}
+        包含
+        {"include": {"value": str}}
+        不包含
+        {"exclude": {"value": str}}
+        符合正则
+        {"match_regex": {"regex": str}}
+        不符合正则
+        {"dismatch_regex": {"regex": str}}
+        :return:
+        """
+        params = {
+            "relation": relation
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/block/relation/create", params, opts)
+        body = self.process_common_request(request)
+        return CreateBlockRelation.from_dict(body)
+
+    def delete_block_relation(self, relation_id: int, **kwargs):
+        """
+        删除单元关系
+        删除一条单元与单元之间的跳转关系。
+        :param relation_id: int (单元关系ID) >= 1
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "id": relation_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/block/relation/delete", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def delete_block(self, block_id: int, **kwargs):
+        """
+        删除单元
+        删除一个对话单元，支持所有类型的单元。
+        :param block_id: int (单元ID) >= 1
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "id": block_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/block/delete", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def intent_trigger_learning(self, page: int, page_size: int, **kwargs):
+        """
+        查询任务待审核消息列表
+        查询触发意图的待审核消息列表。
+        :param page: int (页码，代表查看第几页的数据，从1开始) >= 1
+        :param page_size: int (每页的用户消息数量) [ 1 .. 200 ]
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "page": page,
+            "page_size": page_size
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/intent/trigger-learning/list", params, opts)
+        body = self.process_common_request(request)
+        return IntentTriggerLearning.from_dict(body)
+
+    def delete_intent_trigger_learning(self, msg_id: int, **kwargs):
+        """
+        删除任务待审核消息
+        删除一条触发意图的待审核消息。
+        :param msg_id: int (待审核消息ID) >= 1
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "id": msg_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/intent/trigger-learning/delete", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def update_intent_status(self, status: bool, first_block_id: int, intent_id: int, **kwargs):
+        """
+        更新意图状态
+        将意图生效或者下线，同时需要指定意图的第一个单元。
+        :param status: bool (意图状态,意图生成时默认未生效)
+                    False: 未生效
+                    True: 已生效
+        :param first_block_id: int (该意图的第一个单元ID) >= 1
+        :param intent_id: int (意图ID) >= 1
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "status": status,
+            "first_block_id": first_block_id,
+            "intent_id": intent_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/scene/intent/status/update", params, opts)
+        body = self.process_common_request(request)
+        return UpdateIntentStatus.from_dict(body)
 

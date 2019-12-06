@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 import pytest
 
 from wulaisdk.client import WulaiClient

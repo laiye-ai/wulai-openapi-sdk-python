@@ -30,6 +30,8 @@ class BaseModel:
 
     @classmethod
     def from_dict(cls, env):
+        if not isinstance(env, dict):
+            return env
         parameters = inspect.signature(cls).parameters
         return cls(**{
             k: v for k, v in env.items()

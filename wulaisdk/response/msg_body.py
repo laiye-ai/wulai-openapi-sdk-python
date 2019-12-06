@@ -70,7 +70,6 @@ class ShareLink(BaseModel):
 
 
 class MsgBody(BaseModel):
-    msg_body: dict
 
     def __init__(self, **kwargs) -> None:
         if "text" in kwargs:
