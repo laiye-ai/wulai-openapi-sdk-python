@@ -2,6 +2,7 @@
 任务类api测试
 """
 import os
+import sys
 import time
 import pytest
 
@@ -11,6 +12,13 @@ from wulaisdk.client import WulaiClient
 pubkey = os.getenv("PUBKEY", "")
 secret = os.getenv("SECRET", "")
 log_dir_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+# 区分3.6和3.7的测试内容
+if sys.version_info.minor == 7:
+    tag = "v3.7"
+else:
+    tag = "v3.6"
 
 
 #############################################################
@@ -207,11 +215,11 @@ def test_intent_trigger(intent_trigger_create, intent_trigger_update):
     # 词槽
     ({
         "scene_id": test_scene_id,
-        "name": "词槽1",
+        "name": f"词槽1-{tag}",
         "query_slot_filling": False
      }, {
         "id": "",
-        "name": "词槽1",
+        "name": f"词槽1-{tag}",
         "query_slot_filling": True
      }, {
         "entity_id": 2,  # 星座
@@ -220,7 +228,7 @@ def test_intent_trigger(intent_trigger_create, intent_trigger_update):
     # 词槽更新-不传name
     ({
         "scene_id": test_scene_id,
-        "name": "词槽2",
+        "name": f"词槽2-3.{sys.version_info.minor}",
      }, {
         "id": "",
         "query_slot_filling": True
