@@ -57,3 +57,33 @@ class HistoryMessage(BaseModel):
     def __init__(self, msg: List[Msg], has_more: bool) -> None:
         self.msg = [Msg.from_dict(m) for m in msg]
         self.has_more = has_more
+
+
+class SendMessage(BaseModel):
+    """
+    给用户发消息
+    """
+    msg_id: str
+
+    def __init__(self, msg_id: str) -> None:
+        self.msg_id = msg_id
+
+
+class UserSuggestion(BaseModel):
+    """
+    输入联想内容。在相同对话类型中，如有多条联想内容，按照置信度从高到低排序；在不同对话类型中，如有任务对话的联想，则不返回问答对话的联想内容。
+    """
+    suggestion: str
+
+    def __init__(self, suggestion: str) -> None:
+        self.suggestion = suggestion
+
+
+class GetUserSuggestion(BaseModel):
+    """
+    获取用户输入联想
+    """
+    user_suggestions: List[UserSuggestion]
+
+    def __init__(self, user_suggestions: List[UserSuggestion]) -> None:
+        self.user_suggestions = [UserSuggestion.from_dict(user_suggestion) for user_suggestion in user_suggestions]
