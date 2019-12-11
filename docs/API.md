@@ -333,3 +333,243 @@ client.tokenize(query)
 ```
 
 ### 任务类
+##### 1. 查询场景列表
+> 查询任务对话中的所有场景。
+```
+client.scenes()
+```
+
+##### 2. 创建场景
+> 创建任务对话中的一个场景。
+```
+client.create_scene(scene)
+```
+
+##### 3. 更新场景
+> 更新任务对话中的一个场景。
+```
+client.update_scene(scene)
+```
+
+##### 4. 删除场景
+> 删除任务对话中的一个场景。
+```
+client.delete_scene(scene_id)
+```
+
+##### 5. 查询意图列表
+> 查询一个场景下的所有意图。
+```
+client.intents(scene_id)
+```
+
+##### 6. 创建意图
+> 创建场景下的一个意图。  
+注: 只有当一个场景已经在吾来平台中创建后，才可在当前接口中传入其ID。如果场景ID尚未创建，则无法成功创建意图。
+```
+client.create_intent(intent)
+```
+
+##### 7. 更新意图
+> 更新场景下的一个意图。
+```
+client.update_intent(intent)
+```
+
+##### 8. 删除意图
+> 删除场景下的一个意图。
+```
+client.delete_intent(intent_id)
+```
+
+##### 9. 查询触发器列表
+> 查询一个意图中的所有触发器内容。
+```
+client.intent_triggers(intent_id, page, page_size)
+```
+
+##### 10. 创建触发器
+> 创建一条触发器内容。触发器的文本匹配模式可以选择：完全匹配的关键词，包含匹配的关键词，或者相似说法。
+```
+client.create_intent_trigger(intent_trigger)
+```
+
+##### 11. 更新触发器
+> 更新一条触发器内容。
+```
+client.update_intent_trigger(intent_trigger)
+```
+
+##### 12. 删除触发器
+> 删除一条触发器内容。
+```
+client.delete_intent_trigger(intent_trigger_id)
+```
+
+##### 13. 查询词槽列表
+> 查询一个场景下的所有词槽ID和词槽名称。
+```
+client.slots(scene_id, page, page_size)
+```
+
+##### 14. 创建词槽
+> 创建词槽，包括设置词槽是否允许整句填槽。  
+注：整句填槽指的是，当未识别到引用实体时，将用户的整句话填充到词槽。
+```
+client.create_slot(slot)
+```
+
+##### 15. 更新词槽
+> 更新词槽。
+```
+client.update_slot(slot)
+```
+
+##### 16. 查询词槽
+> 查询一个词槽的详情。
+```
+client.get_slot(slot_id)
+```
+
+##### 17. 删除词槽
+> 删除词槽。
+```
+client.delete_slot(slot_id)
+```
+
+##### 18. 查询词槽数据来源
+> 查询一个词槽的所有数据来源。
+```
+client.slot_data_source(slot_id)
+```
+
+##### 19. 创建词槽数据来源
+> 创建词槽数据来源即定义词槽的引用实体，将实体与词槽关联起来。  
+注：必须先创建词槽和实体后，才可以创建词槽数据来源。
+```
+client.create_slot_data_source(data_source)
+```
+
+
+##### 20. 删除词槽数据来源
+> 删除词槽数据来源。
+```
+client.delete_slot_data_source(slot_data_source_id)
+```
+
+##### 21. 查询消息发送单元
+> 该接口用于分词以及词性标注。
+```
+client.inform_block(block_id)
+```
+
+##### 22. 创建消息发送单元
+> 创建一个消息发送单元。
+```
+client.create_inform_block(block)
+```
+
+##### 23. 更新消息发送单元
+> 更新一个消息发送单元。
+```
+client.update_inform_block(block)
+```
+
+##### 24. 查询询问填槽单元
+> 查询一个询问填槽单元的详情，包括单元设置、单元回复、该单元与其他单元的跳转关系等。  
+注：必须先创建一个词槽，才可以在单元中使用它作为关联词槽。
+```
+client.request_block(block_id)
+```
+
+##### 25. 创建询问填槽单元
+> 创建一个询问填槽单元。
+```
+client.create_request_block(block)
+```
+
+##### 26. 更新询问填槽单元
+> 更新一个询问填槽单元。  
+注：必须先创建一个词槽，才可以在单元中使用它作为关联词槽。
+```
+client.update_request_block(block)
+```
+
+##### 27. 创建单元内回复
+> 给询问填槽单元或消息发送单元添加一条回复。
+```
+client.create_block_response(response)
+```
+
+##### 28.  更新单元内回复
+> 给询问填槽单元或消息发送单元更新一条回复。
+```
+client.update_block_response(response)
+```
+
+##### 29. 删除单元内回复
+> 删除一条单元内回复。
+```
+client.delete_block_response(response_id)
+```
+
+##### 30. 查询意图终点单元
+> 查询一个意图终点单元的详情。
+```
+client.end_block(block_id)
+```
+
+##### 31. 创建意图终点单元
+> 创建一个意图终点单元。  
+注：意图终点单元如果要跳转到一个指定意图，该意图必须先被创建。
+```
+client.create_end_block(block)
+```
+
+##### 32. 更新意图终点单元
+> 更新一个意图终点单元。
+```
+client.update_end_block(block)
+```
+
+##### 33. 查询单元列表
+> 查询意图里的所有单元。
+```
+client.blocks(intent_id, page, page_size)
+```
+
+##### 34. 创建单元关系
+> 创建单元与单元之间的跳转关系，包括当前单元、下一个单元、以及跳转条件。
+```
+client.create_block_relation(relation)
+```
+
+##### 35. 删除单元关系
+> 删除一条单元与单元之间的跳转关系。
+```
+client.delete_block_relation(relation_id)
+```
+
+##### 36. 删除单元
+> 删除一个对话单元，支持所有类型的单元。
+```
+client.delete_block(block_id)
+```
+
+##### 37. 查询任务待审核消息列表
+> 查询触发意图的待审核消息列表。
+```
+client.intent_trigger_learning(page, page_size)
+```
+
+##### 38. 删除任务待审核消息
+> 删除一条触发意图的待审核消息。
+```
+client.delete_intent_trigger_learning(msg_id)
+```
+
+##### 39. 更新意图状态
+> 将意图生效或者下线，同时需要指定意图的第一个单元。
+```
+client.update_intent_status(status, first_block_id, intent_id)
+```
