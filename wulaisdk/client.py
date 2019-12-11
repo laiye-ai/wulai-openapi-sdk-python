@@ -2,6 +2,8 @@ import time
 import uuid
 import hashlib
 import logging
+import sys
+import requests
 
 from wulaisdk.http import BaseRequest
 from wulaisdk import http_codes
@@ -95,7 +97,7 @@ class WulaiClient:
         logger.addHandler(log_handler)
 
     def check_api_version(self):
-        if self.api_version not in ["v1", "v2"]:
+        if not self.api_version.startswith("v"):
             raise ClientException("SDK_INVALID_API_VERSION", ERR_INFO["SDK_INVALID_API_VERSION"])
 
     def make_authentication(self, pubkey, secret):
@@ -116,6 +118,19 @@ class WulaiClient:
     def check_request(self, request):
         if not isinstance(request, CommonRequest):
             raise ClientException("SDK_INVALID_REQUEST", ERR_INFO["SDK_INVALID_REQUEST"])
+
+    def add_user_agent(self, request):
+        """
+        add User-Agent for request
+        :param request:
+        :return:
+        """
+        py_version = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+        requests_version = requests.__version__
+        request.add_headers(
+            "User-Agent",
+            f"wulai-openapi-sdk-python/{self.api_version}-1.1.6 python/{py_version} requests/{requests_version}"
+        )
 
     def get_url(self, request):
         url = self.endpoint + "/" + self.api_version + request.action
@@ -153,6 +168,7 @@ class WulaiClient:
 
     def handle_single_request(self, request):
         self.check_request(request)
+        self.add_user_agent(request)
         url = self.get_url(request)
         auth_headers = self.make_authentication(self.pubkey, self.secret)
         request.update_headers(auth_headers)
