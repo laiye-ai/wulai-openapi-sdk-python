@@ -240,3 +240,15 @@ class UserAttributes(BaseModel):
         self.user_attribute_user_attribute_values = [
             UserAttributeTotalUserAttributeValues.from_dict(uauav) for uauav in user_attribute_user_attribute_values
         ]
+
+
+class GetUser(BaseModel):
+    """
+    查询用户信息
+    """
+    avatar_url: str
+    nickname: str
+
+    def __init__(self, avatar_url: str, nickname: str) -> None:
+        self.avatar_url = avatar_url
+        self.nickname = nickname

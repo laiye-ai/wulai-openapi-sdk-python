@@ -506,12 +506,13 @@ def test_intent_trigger_learning():
     # 查询任务待审核消息列表
     resp_list = client.intent_trigger_learning(1, 50)
     assert resp_list.to_dict()
-    query_item = resp_list.query_items[0]
-    assert query_item.recommend_intent.intent_name
-    intent_trigger_learning_id = query_item.id
+    if resp_list.query_items:
+        query_item = resp_list.query_items[0]
+        assert query_item.recommend_intent.intent_name
+        intent_trigger_learning_id = query_item.id
 
-    # 删除任务待审核消息
-    client.delete_intent_trigger_learning(intent_trigger_learning_id)
+        # 删除任务待审核消息
+        client.delete_intent_trigger_learning(intent_trigger_learning_id)
 
 
 # 完整意图测试: 单元列表、单元关系、更新意图状态

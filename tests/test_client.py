@@ -99,7 +99,7 @@ def test_http_method(debug, action, params, opts):
 ])
 def test_api_version(debug, user_id, avatar_url, nickname):
     with pytest.raises(ClientException) as excinfo:
-        client = WulaiClient(pubkey, secret, debug=debug, api_version="v3")
+        client = WulaiClient(pubkey, secret, debug=debug, api_version="3")
         client.create_user(user_id, avatar_url, nickname)
         assert excinfo.error_code == "SDK_INVALID_API_VERSION"
 
@@ -133,6 +133,7 @@ def test_credential(debug, user_id, avatar_url, nickname):
 @pytest.mark.parametrize('debug,user_id,avatar_url,nickname,expected', [
     (True, "shierlou", "", "测试用户-shierlou", {}),
     (True, "shierlou", "", "", {}),
+    (True, "test1", "", "", {}),
 ])
 def test_create_user_normal_1(debug, user_id, avatar_url, nickname, expected):
     client = WulaiClient(pubkey, secret, debug=debug)
@@ -199,6 +200,58 @@ def test_create_user_attribute(user_attribute_user_attribute_value, user_id):
     assert 1
 
 
+# createUserUserAttribute test
+# 注：接口功能同上create_user_attribute，不小心创建重复
+@pytest.mark.parametrize('user_id,user_attribute_user_attribute_value,expected', [
+    ("shierlou", [
+        {"user_attribute": {"id": "101343"}, "user_attribute_value": {"name": "新用户"}},
+        {"user_attribute": {"id": "101344"}, "user_attribute_value": {"name": "小区a"}},
+    ], {}),
+])
+def test_create_user_user_attribute_normal(user_id, user_attribute_user_attribute_value, expected):
+    client = WulaiClient(pubkey, secret, debug=True)
+    resp = client.create_user_user_attribute(user_id, user_attribute_user_attribute_value)
+    assert resp == expected
+
+
+# 查询用户信息
+@pytest.mark.parametrize('user_id', [
+    "shierlou"
+])
+def test_get_user_normal(user_id):
+    client = WulaiClient(pubkey, secret, debug=True)
+    resp = client.get_user(user_id)
+    assert resp.nickname
+    assert resp.avatar_url
+
+
+@pytest.mark.parametrize('user_id', [
+    "shierlou111"
+])
+def test_get_user_error(user_id):
+    client = WulaiClient(pubkey, secret, debug=True)
+    with pytest.raises(ClientException) as excinfo:
+        client.get_user(user_id)
+        assert excinfo.error_code == "SDK_INVALID_PARAMS"
+
+
+# 更新用户信息
+@pytest.mark.parametrize('user_id, avatar_url, nickname', [
+    ("test1", "https://www.baidu.com/img/bd_logo1.png", "测试用户1"),
+    ("test1", None, None)
+])
+def test_update_user(user_id, avatar_url, nickname):
+    client = WulaiClient(pubkey, secret, debug=True)
+    client.update_user(user_id, avatar_url, nickname)
+    resp = client.get_user(user_id)
+    if avatar_url:
+        assert resp.avatar_url == avatar_url
+        assert resp.nickname == nickname
+    else:
+        assert resp.avatar_url
+        assert resp.nickname
+
+
 #############################################################
 #                          对话类
 #############################################################
@@ -220,19 +273,6 @@ def test_get_bot_response_image(user_id, msg_body):
     client = WulaiClient(pubkey, secret, debug=True)
     resp = client.get_bot_response(user_id, msg_body)
     assert isinstance(resp.suggested_response[0].response[0].msg_body.image.resource_url, str)
-
-
-# createUserUserAttribute test
-@pytest.mark.parametrize('user_id,user_attribute_user_attribute_value,expected', [
-    ("shierlou", [
-        {"user_attribute": {"id": "101343"}, "user_attribute_value": {"name": "新用户"}},
-        {"user_attribute": {"id": "101344"}, "user_attribute_value": {"name": "小区a"}},
-    ], {}),
-])
-def test_create_user_user_attribute_normal(user_id, user_attribute_user_attribute_value, expected):
-    client = WulaiClient(pubkey, secret, debug=True)
-    resp = client.create_user_user_attribute(user_id, user_attribute_user_attribute_value)
-    assert resp == expected
 
 
 # getKeyWordBotResponse test
@@ -335,6 +375,38 @@ def test_err_response(body):
     assert MsgBody.from_dict(body)
 
 
+# 给用户发消息
+@pytest.mark.parametrize('user_id, msg_body, quick_reply, similar_response, extra', [
+    ("shierlou", {"text": {"content": "测试给用户发消息"}}, None, None, None),
+    ("shierlou", {"text": {"content": "测试给用户发消息2"}}, ["快捷回复1", "快捷回复2"], {
+        "source": "QA_BOT",
+        "detail": {
+            "qa": {
+                "knowledge_id": "",
+                "standard_question": "",
+                "question": "",
+                "is_none_intention": False
+            }
+        }
+    }, ""),
+])
+def test_send_message(user_id, msg_body, quick_reply, similar_response, extra):
+    client = WulaiClient(pubkey, secret, debug=True)
+    resp = client.send_message(user_id, msg_body, quick_reply, similar_response, extra)
+    assert resp.msg_id
+
+
+# 获取用户输入联想
+@pytest.mark.parametrize('user_id, query', [
+    ("shierlou", "你好"),
+])
+def test_send_message(user_id, query):
+    client = WulaiClient(pubkey, secret, debug=True)
+    resp = client.get_user_suggestion(user_id, query)
+    user_suggestiont = resp.user_suggestions[0]
+    assert user_suggestiont.suggestion
+
+
 #############################################################
 #                         知识点类
 #############################################################
@@ -430,6 +502,10 @@ def test_knowledge_tags(page, page_size, knowledge_c, knowledge_u):
 
     # delete
     resp = client.delete_similar_question(similar_question_id)
+    assert isinstance(resp, dict)
+
+    # delete knowledge
+    resp = client.delete_knowledge(knowledge_id)
     assert isinstance(resp, dict)
 
 

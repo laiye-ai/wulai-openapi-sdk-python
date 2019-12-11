@@ -2,6 +2,8 @@ import time
 import uuid
 import hashlib
 import logging
+import sys
+import requests
 
 from wulaisdk.http import BaseRequest
 from wulaisdk import http_codes
@@ -15,12 +17,12 @@ from wulaisdk.response.qa_bot_response import QABotResponse
 from wulaisdk.response.task_bot_response import TaskBotResponse
 from wulaisdk.response.sync_message import SyncMessage
 from wulaisdk.response.receive_message import ReceiveMessage
-from wulaisdk.response.history_message import HistoryMessage
+from wulaisdk.response.history_message import HistoryMessage, SendMessage, GetUserSuggestion
 from wulaisdk.response.knowledge import KnowledgeCreate, KnowledgeUpdate, KnowledgeItems, KnowledgeTags
 from wulaisdk.response.similar_question import SimilarQuestionCreate, SimilarQuestions, SimilarQuestionUpdate
 from wulaisdk.response.user_attribute_group import CreateUserAttributeGroup, UpdateUserAttributeGroup,\
     UpdateUserAttributeGroupItems, CreateUserAttributeGroupAnswer, UpdateUserAttributeGroupAnswer,\
-    UserAttributeGroupAnswers, UserUserAttribute, UserAttributes
+    UserAttributeGroupAnswers, UserUserAttribute, UserAttributes, GetUser
 from wulaisdk.response.stats import StatsQASatisfactionKnowledgeDaily, StatsQARecallDaily, StatasQARecallDailyKnowledges
 from wulaisdk.response.dictionary import DictionaryEntities, DictionaryTerms, DictionaryTerm, \
     DictionaryEntity, CreateEnumEntity, CreateEnumEntityValue, CreateIntentEntity, CreateIntentEntityValue
@@ -95,7 +97,7 @@ class WulaiClient:
         logger.addHandler(log_handler)
 
     def check_api_version(self):
-        if self.api_version not in ["v1", "v2"]:
+        if not self.api_version.startswith("v"):
             raise ClientException("SDK_INVALID_API_VERSION", ERR_INFO["SDK_INVALID_API_VERSION"])
 
     def make_authentication(self, pubkey, secret):
@@ -116,6 +118,19 @@ class WulaiClient:
     def check_request(self, request):
         if not isinstance(request, CommonRequest):
             raise ClientException("SDK_INVALID_REQUEST", ERR_INFO["SDK_INVALID_REQUEST"])
+
+    def add_user_agent(self, request):
+        """
+        add User-Agent for request
+        :param request:
+        :return:
+        """
+        py_version = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+        requests_version = requests.__version__
+        request.add_headers(
+            "User-Agent",
+            f"wulai-openapi-sdk-python/{self.api_version}-1.1.6 python/{py_version} requests/{requests_version}"
+        )
 
     def get_url(self, request):
         url = self.endpoint + "/" + self.api_version + request.action
@@ -153,6 +168,7 @@ class WulaiClient:
 
     def handle_single_request(self, request):
         self.check_request(request)
+        self.add_user_agent(request)
         url = self.get_url(request)
         auth_headers = self.make_authentication(self.pubkey, self.secret)
         request.update_headers(auth_headers)
@@ -209,6 +225,7 @@ class WulaiClient:
         }
         return opts
 
+    # 用户类
     def create_user(self, user_id: str, avatar_url: str="", nickname: str="", **kwargs):
         """
         创建用户
@@ -234,6 +251,7 @@ class WulaiClient:
         """
         给用户添加属性值
         该接口用于给用户添加或修改用户属性，包括系统属性和临时属性。
+        （该接口不小心创建重复，和下述create_user_user_attribute的功能没有区别）
         :param user_attribute_user_attribute_value: list (属性列表。重复创建的用户属性会被覆盖。临时属性默认30min有效期。)
         :param user_id:	str (用户id作为用户的唯一识别。)[ 1 .. 128 ] characters
         user_attribute_user_attribute_value:
@@ -248,6 +266,31 @@ class WulaiClient:
         params = {
             "user_attribute_user_attribute_value": user_attribute_user_attribute_value,
             "user_id": user_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/user/user-attribute/create", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def create_user_user_attribute(self, user_id: str, user_attribute_user_attribute_value: list, **kwargs):
+        """
+        给用户添加属性值
+        该接口用于给用户添加或修改用户属性，包括预设属性和自定义属性。
+        :param user_id:	str (用户id作为用户的唯一识别。)
+        :param user_attribute_user_attribute_value: list  (属性列表。重复创建的用户属性会被覆盖。临时属性默认30min有效期。)
+        user_attribute_user_attribute_value:
+        [
+            {
+                "user_attribute"【required】(用户属性): {"id": str},
+                "user_attribute_value"【required】(用户属性值): {"name": str}
+            }
+        ]
+        :return:
+        """
+        params = {
+            "user_id": user_id,
+            "user_attribute_user_attribute_value": user_attribute_user_attribute_value
         }
         opts = self.opts_create(kwargs)
 
@@ -298,6 +341,44 @@ class WulaiClient:
         body = self.process_common_request(request)
         return UserAttributes.from_dict(body)
 
+    def get_user(self, user_id: str, **kwargs):
+        """
+        查询用户信息
+        获取一个用户的详细信息。
+        :param user_id:	str (用户id)[ 1 .. 128 ] characters
+
+        :return:
+        """
+        params = {
+            "user_id": user_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/user/get", params, opts)
+        body = self.process_common_request(request)
+        return GetUser.from_dict(body)
+
+    def update_user(self, user_id: str, avatar_url: str=None, nickname: str=None, **kwargs):
+        """
+        更新用户信息
+        更新用户昵称和头像地址。
+        :param user_id:	str (用户id)[ 1 .. 128 ] characters
+        :param avatar_url: 	str (用户头像地址。用户头像会展示在吾来SaaS的用户列表、消息记录等任何展示用户信息的地方) <= 512 characters
+        :param nickname: str (用户昵称) <= 128 characters
+        :return:
+        """
+        params = {
+            "user_id": user_id,
+            "avatar_url": avatar_url,
+            "nickname": nickname
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/user/update", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    # 对话类
     def get_bot_response(self, user_id: str, msg_body: dict, extra: str="", **kwargs):
         """
         获取机器人回复
@@ -345,27 +426,6 @@ class WulaiClient:
         request = CommonRequest("/msg/bot-response", params, opts)
         body = self.process_common_request(request)
         return BotResponse.from_dict(body)
-
-    def create_user_user_attribute(self, user_id: str, user_attribute_user_attribute_value: list, **kwargs):
-        """
-        给用户添加属性值
-        该接口用于给用户添加或修改用户属性，包括预设属性和自定义属性。
-        :param user_id:	str (用户id作为用户的唯一识别。)
-        :param user_attribute_user_attribute_value: list  (属性列表。重复创建的用户属性会被覆盖。临时属性默认30min有效期。)
-        user_attribute_user_attribute_value = [
-            {"user_attribute": {"id": "属性id"}, "user_attribute_value": {"name": "属性值"}}, {...}, ...
-        ]
-        :return:
-        """
-        params = {
-            "user_id": user_id,
-            "user_attribute_user_attribute_value": user_attribute_user_attribute_value
-        }
-        opts = self.opts_create(kwargs)
-
-        request = CommonRequest("/user/user-attribute/create", params, opts)
-        body = self.process_common_request(request)
-        return body
 
     def get_keyword_bot_response(self, user_id: str, msg_body: dict, extra: str="", **kwargs):
         """
@@ -708,6 +768,154 @@ class WulaiClient:
         body = self.process_common_request(request)
         return HistoryMessage.from_dict(body)
 
+    def send_message(self, user_id: str, msg_body: dict, quick_reply: list=None,
+                     similar_response: list=None, extra: str=None, **kwargs):
+        """
+        给用户发消息
+        :param user_id: str(用户唯一标识) [ 1 .. 128 ] characters
+        :param msg_body: dict(消息体格式，任意选择一种消息类型（文本 / 图片 / 语音 / 视频 / 文件 / 图文 / 自定义消息）填充)
+        :param quick_reply: list(快捷回复) <= 5 items
+        :param similar_response: list(推荐知识点) <= 5 items
+        :param extra: str(自定义字段) <= 1024 characters
+        :param kwargs:
+        :return:
+        msg_body:
+        文本消息
+        {"text": {"content"【required】: str}}
+        图片消息
+        {"image": {"resource_url"【required】: str}}
+        自定义消息
+        {"custom": {"content"【required】: str}}
+        视频消息
+        {"video": {"resource_url"【required】: str(资源链接), "thumb": str(缩略图), "description": str(描述), "title": str(标题)}}
+        文件消息
+        {"file": {"file_name": "str", "resource_url"【required】: "str"}}
+        语音消息
+        {
+        "voice": {
+            "resource_url"【required】: str,
+            "type": "AMR"(default AMR, one of AMR PCM WAV OPUS SPEEX MP3),
+            "recognition": str(语音识别文本结果)
+            }
+        }
+        图文消息
+        {
+        "share_link": {
+            "description": str(文字描述),
+            "destination_url"【required】: str(链接目标地址),
+            "cover_url"【required】: str(封面图片地址),
+            "title"【required】: str(链接的文字标题)
+            }
+        }
+        similar_response:
+        [
+            {
+                "source": str(回复的来源)
+                    DEFAULT_ANSWER_SOURCE: 机器人回复兜底内容
+                    KEYWORD_BOT: 关键字机器人
+                    TASK_BOT: 任务机器人
+                    QA_BOT: 问答机器人
+                    CHITCHAT_BOT: 闲聊机器人,
+                "detail": dict
+            }
+        ]
+        detail:
+        问答机器人
+        {
+        "qa": {
+            "knowledge_id": int (知识点id),
+            "standard_question": str (标准问 <=100 characters),
+            "question": str (命中的相似问 <=1024 characters),
+            "is_none_intention": str (是否为无意图知识点),
+            }
+        }
+        闲聊机器人
+        {
+        "chitchat": {
+            "corpus": str (闲聊机器人类型:
+                CHITCHAT_CORPUS_OPEN_DOMAIN: 开放闲聊
+                CHITCHAT_CORPUS_CUSTOM: 自定义闲聊)
+            }
+        }
+        任务机器人
+        {
+        "task": {
+            "block_type": str (对话单元类型:
+                BLOCK_TYPE_MESSAGE: 消息单元
+                BLOCK_TYPE_ASK: 询问单元
+                BLOCK_TYPE_HIDE: 隐藏单元
+                BLOCK_TYPE_LINK: 跳转单元
+                BLOCK_TYPE_ADVANCE_INTERFACE: 高级接口
+                BLOCK_TYPE_INTERFACE: 接口单元
+                BLOCK_TYPE_CALCULATE: 运算单元
+                BLOCK_TYPE_COLLECT: 收集单元),
+            "block_id": int (任务型机器人对话单元id),
+            "task_id": int (任务id),
+            "block_name": str (任务机器人对话单元名),
+            "entities": list (抽取的实体列表),
+            "task_name": str (任务机器人任务名),
+            "robot_id": int (机器人id)
+            }
+        }
+        entities:
+        [
+            {
+                "idx_end": int (实体值原始片段在query中的结束位置),
+                "name": str (实体名称),
+                "idx_start": int (实体值原始片段在query中的起始位置),
+                "value": str (实体值),
+                "seg_value": str (实体值的原始片段),
+                "type": str (实体类型枚举:
+                    NTITY_TYPE_SYS: 系统实体
+                    ENTITY_TYPE_UDEFINE: 用户自定义实体
+                    ENTITY_TYPE_CONTENT: 自由文本实体
+                    ENTITY_TYPE_REGEX: 正则实体
+                    ENTITY_TYPE_CITE: 引用实体
+                    ENTITY_TYPE_WEBHOOK: webhook实体
+                    ENTITY_TYPE_USERACT: user_act),
+                "desc": str (实体别名),
+            }
+        ]
+        关键字机器人
+        {
+        "keyword": {
+            "keyword_id": int (关键字id),
+            "keyword": str (命中的关键字 <=128 characters),
+            }
+        }
+        """
+        params = {
+            "user_id": user_id,
+            "msg_body": msg_body,
+            "similar_response": similar_response,
+            "quick_reply": quick_reply,
+            "extra": extra
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/msg/send", params, opts)
+        body = self.process_common_request(request)
+        return SendMessage.from_dict(body)
+
+    def get_user_suggestion(self, user_id: str, query: str, **kwargs):
+        """
+        获取用户输入联想
+        在用户输入时提供相似知识点联想，减少用户的输入成本。
+        :param user_id: str (用户Id) [ 1 .. 128 ] characters
+        :param query: str (用户输入) [ 1 .. 128 ] characters
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "user_id": user_id,
+            "query": query
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/msg/user-suggestion/get", params, opts)
+        body = self.process_common_request(request)
+        return GetUserSuggestion.from_dict(body)
+
     # 知识点类
     def create_knowledge(self, knowledge_tag_knowledge: dict, **kwargs):
         """
@@ -760,6 +968,22 @@ class WulaiClient:
         request = CommonRequest("/qa/knowledge/update", params, opts)
         body = self.process_common_request(request)
         return KnowledgeUpdate.from_dict(body)
+
+    def delete_knowledge(self, knowledge_id: int, **kwargs):
+        """
+        删除知识点
+        该接口可删除一个知识点，如果一个知识点关联了相似问、或未删除的属性组回复，则一并删除
+        :param knowledge_id: int (知识点id) >= 1
+        :return:
+        """
+        params = {
+            "id": knowledge_id,
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/qa/knowledge/delete", params, opts)
+        body = self.process_common_request(request)
+        return body
 
     def knowledge_items(self, page: int, page_size: int, **kwargs):
         """
@@ -1284,8 +1508,8 @@ class WulaiClient:
 
     def delete_dictionary_term(self, term_id: str, **kwargs):
         """
-        更新专有词汇
-        该接口用于更新专有词汇，包括更新专有词汇的名称和同义词。
+        删除专有词汇
+        该接口用于删除一条专有词汇。
         :param term_id: str(专有词汇id)
         :param kwargs:
         :return:

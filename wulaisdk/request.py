@@ -12,8 +12,7 @@ class CommonRequest:
         self.path = ""
         self.headers = {
             "Accept": "application/json",
-            "Content-Type": "application/json",
-            "User-Agent": "wulai-openapi-sdk-python/v2-1.1.5 python/3.6 requests/2.22"
+            "Content-Type": "application/json"
         }
         self.action = action
         self.params = params
