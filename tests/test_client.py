@@ -99,7 +99,7 @@ def test_http_method(debug, action, params, opts):
 ])
 def test_api_version(debug, user_id, avatar_url, nickname):
     with pytest.raises(ClientException) as excinfo:
-        client = WulaiClient(pubkey, secret, debug=debug, api_version="v3")
+        client = WulaiClient(pubkey, secret, debug=debug, api_version="3")
         client.create_user(user_id, avatar_url, nickname)
         assert excinfo.error_code == "SDK_INVALID_API_VERSION"
 
