@@ -2,6 +2,9 @@ from wulaisdk.response import BaseModel
 
 
 class Text(BaseModel):
+    """
+    文本消息
+    """
     content: str
 
     def __init__(self, content: str) -> None:
@@ -9,6 +12,9 @@ class Text(BaseModel):
 
 
 class Image(BaseModel):
+    """
+    图片消息
+    """
     resource_url: str
 
     def __init__(self, resource_url: str) -> None:
@@ -16,6 +22,9 @@ class Image(BaseModel):
 
 
 class Custom(BaseModel):
+    """
+    自定义消息
+    """
     content: str
 
     def __init__(self, content: str) -> None:
@@ -23,6 +32,9 @@ class Custom(BaseModel):
 
 
 class Video(BaseModel):
+    """
+    视频消息
+    """
     resource_url: str
     thumb: str
     description: str
@@ -36,6 +48,9 @@ class Video(BaseModel):
 
 
 class File(BaseModel):
+    """
+    文件消息
+    """
     file_name: str
     resource_url: str
 
@@ -45,7 +60,9 @@ class File(BaseModel):
 
 
 class Voice(BaseModel):
-    # todo: type
+    """
+    语音消息
+    """
     resource_url: str
     type: str
     recognition: str
@@ -57,6 +74,9 @@ class Voice(BaseModel):
 
 
 class ShareLink(BaseModel):
+    """
+    卡片消息
+    """
     description: str
     destination_url: str
     cover_url: str
@@ -70,6 +90,9 @@ class ShareLink(BaseModel):
 
 
 class MsgBody(BaseModel):
+    """
+    消息体格式
+    """
 
     def __init__(self, **kwargs) -> None:
         if "text" in kwargs:

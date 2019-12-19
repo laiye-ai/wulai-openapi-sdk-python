@@ -1,5 +1,7 @@
 """
 自然语言处理类
+1. 实体抽取
+2. 分词&词性标注
 """
 from wulaisdk.response import BaseModel
 from typing import List

@@ -8,7 +8,7 @@ import sys
 from wulaisdk.client import WulaiClient
 from wulaisdk.request import CommonRequest
 from wulaisdk.exceptions import ClientException
-from wulaisdk.response.bot_response import BotResponse
+from wulaisdk.response.category_talk import BotResponse
 from wulaisdk.response.msg_body import MsgBody
 
 pubkey = os.getenv("PUBKEY", "")

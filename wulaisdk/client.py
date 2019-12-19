@@ -11,23 +11,20 @@ from wulaisdk.request import CommonRequest
 from wulaisdk.exceptions import ServerException, ClientException, ERR_INFO
 
 from requests.exceptions import ConnectionError, ConnectTimeout
-from wulaisdk.response.bot_response import BotResponse
-from wulaisdk.response.keyword_bot_response import KeywordBotResponse
-from wulaisdk.response.qa_bot_response import QABotResponse
-from wulaisdk.response.task_bot_response import TaskBotResponse
-from wulaisdk.response.sync_message import SyncMessage
-from wulaisdk.response.receive_message import ReceiveMessage
-from wulaisdk.response.history_message import HistoryMessage, SendMessage, GetUserSuggestion
-from wulaisdk.response.knowledge import KnowledgeCreate, KnowledgeUpdate, KnowledgeItems, KnowledgeTags
-from wulaisdk.response.similar_question import SimilarQuestionCreate, SimilarQuestions, SimilarQuestionUpdate
-from wulaisdk.response.user_attribute_group import CreateUserAttributeGroup, UpdateUserAttributeGroup,\
+
+from wulaisdk.response.category_user import UserUserAttribute, UserAttributes, GetUser
+from wulaisdk.response.category_talk import BotResponse, KeywordBotResponse, QABotResponse, TaskBotResponse,\
+    SyncMessage, ReceiveMessage, HistoryMessage, SendMessage, GetUserSuggestion
+from wulaisdk.response.category_knowledge import KnowledgeCreate, KnowledgeUpdate, KnowledgeItems, KnowledgeTags,\
+    SimilarQuestionCreate, SimilarQuestions, SimilarQuestionUpdate,CreateUserAttributeGroup, UpdateUserAttributeGroup,\
     UpdateUserAttributeGroupItems, CreateUserAttributeGroupAnswer, UpdateUserAttributeGroupAnswer,\
-    UserAttributeGroupAnswers, UserUserAttribute, UserAttributes, GetUser
-from wulaisdk.response.stats import StatsQASatisfactionKnowledgeDaily, StatsQARecallDaily, StatasQARecallDailyKnowledges
-from wulaisdk.response.dictionary import DictionaryEntities, DictionaryTerms, DictionaryTerm, \
+    UserAttributeGroupAnswers
+from wulaisdk.response.category_stats import StatsQASatisfactionKnowledgeDaily, StatsQARecallDaily,\
+    StatasQARecallDailyKnowledges
+from wulaisdk.response.category_dictionary import DictionaryEntities, DictionaryTerms, DictionaryTerm, \
     DictionaryEntity, CreateEnumEntity, CreateEnumEntityValue, CreateIntentEntity, CreateIntentEntityValue
-from wulaisdk.response.nlp import EntityExtract, Tokenize
-from wulaisdk.response.task import Scenes, CreateScene, UpdateScene, Intents, CreateIntent, UpdateIntent,\
+from wulaisdk.response.category_nlp import EntityExtract, Tokenize
+from wulaisdk.response.category_task import Scenes, CreateScene, UpdateScene, Intents, CreateIntent, UpdateIntent,\
     IntentTriggers, CreateIntentTrigger, UpdateIntentTrigger, Slots, CreateSlot, UpdateSlot, SlotDataSource, GetSlot,\
     CreateSlotDataSource, GetInformBlock, CreateInformBlock, UpdateInformBlock, GetRequestBlock,\
     CreateRequestBlock, UpdateRequestBlock, CreateResponse, UpdateResponse, GetEndBlock, CreateEndBlock,\
