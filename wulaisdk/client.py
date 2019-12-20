@@ -23,7 +23,7 @@ from wulaisdk.response.category_stats import StatsQASatisfactionKnowledgeDaily, 
     StatasQARecallDailyKnowledges
 from wulaisdk.response.category_dictionary import DictionaryEntities, DictionaryTerms, DictionaryTerm, \
     DictionaryEntity, CreateEnumEntity, CreateEnumEntityValue, CreateIntentEntity, CreateIntentEntityValue
-from wulaisdk.response.category_nlp import EntityExtract, Tokenize
+from wulaisdk.response.category_nlp import EntityExtract, Tokenize, MiningUpload, MiningExecute, MiningResult
 from wulaisdk.response.category_task import Scenes, CreateScene, UpdateScene, Intents, CreateIntent, UpdateIntent,\
     IntentTriggers, CreateIntentTrigger, UpdateIntentTrigger, Slots, CreateSlot, UpdateSlot, SlotDataSource, GetSlot,\
     CreateSlotDataSource, GetInformBlock, CreateInformBlock, UpdateInformBlock, GetRequestBlock,\
@@ -126,7 +126,7 @@ class WulaiClient:
         requests_version = requests.__version__
         request.add_headers(
             "User-Agent",
-            f"wulai-openapi-sdk-python/{self.api_version}-1.1.6 python/{py_version} requests/{requests_version}"
+            f"wulai-openapi-sdk-python/{self.api_version}-1.1.7 python/{py_version} requests/{requests_version}"
         )
 
     def get_url(self, request):
@@ -1721,6 +1721,93 @@ class WulaiClient:
         request = CommonRequest("/nlp/tokenize", params, opts)
         body = self.process_common_request(request)
         return Tokenize.from_dict(body)
+
+    def mining_upload(self, queries: list, **kwargs):
+        """
+        导入待聚类语料
+        该接口用于上传待聚类语料。语料可多次添加，再一起执行聚类。
+        如需覆盖已经导入的语料，请先调用「清空待聚类语料接口」清空语料，然后再上传新语料。
+        单次上传的上限为1千条。如果超限只截取前1千条。 发起一次聚类的语料总上限为5万。如果超限只截取前5万条。
+        :param queries: list(待聚类语料)
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "queries": queries
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/nlp/sentence/mining/upload", params, opts)
+        body = self.process_common_request(request)
+        return MiningUpload.from_dict(body)
+
+    def mining_empty(self, **kwargs):
+        """
+        清空待聚类语料
+        该接口用于清空待聚类语料库。
+        :param kwargs:
+        :return:
+        """
+        params = {}
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/nlp/sentence/mining/empty", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def mining_execute(self, **kwargs):
+        """
+        发起聚类
+        该接口用于发起聚类请求。发起一次聚类的语料总上限为5万。
+        如果超限只截取前5万条。 在发起聚类请求后，下一步调用「获取聚类结果列表接口」查询聚类是否完成和聚类结果。
+        如果在一次聚类请求未完成时发起第二次聚类，当所有聚类完成后，「获取聚类结果列表接口」只会返回最后一次聚类的结果。
+        :param kwargs:
+        :return:
+        """
+        params = {}
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/nlp/sentence/mining/execute", params, opts)
+        body = self.process_common_request(request)
+        return MiningExecute.from_dict(body)
+
+    def mining_result(self, page: int, page_size: int, **kwargs):
+        """
+        获取聚类结果列表
+        该接口用于获取聚类结果。 如果当前最后一次请求在进行中，则返回的状态为“进行中”，结果为空。
+        如果当前最后一次请求已完成，则返回的状态为“完成”，结果为最后一次聚类的结果。
+        如果在一次聚类请求未完成时发起第二次聚类，当所有聚类完成后，接口只会返回最后一次聚类的结果。
+        :param page: int(页码)
+        :param page_size: int(每页中簇的数量)
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "page": page,
+            "page_size": page_size
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/nlp/sentence/mining/result/get", params, opts)
+        body = self.process_common_request(request)
+        return MiningResult.from_dict(body)
+
+    def delete_mining_sentence(self, sentence_id: int, **kwargs):
+        """
+        删除聚类结果
+        该接口用于删除聚类结果中的一个句子。
+        :param sentence_id: int(句子ID)
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "id": sentence_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/nlp/sentence/mining/sentence/delete", params, opts)
+        body = self.process_common_request(request)
+        return body
 
     # 任务类
     def scenes(self, **kwargs):

@@ -2,6 +2,11 @@
 自然语言处理类
 1. 实体抽取
 2. 分词&词性标注
+3. 导入待聚类语料
+4. 清空待聚类语料
+5. 发起聚类
+6. 获取聚类结果列表
+7. 删除聚类结果
 """
 from wulaisdk.response import BaseModel
 from typing import List
@@ -110,3 +115,65 @@ class Tokenize(BaseModel):
 
     def __init__(self, tokens: List[Token]) -> None:
         self.tokens = [Token.from_dict(token) for token in tokens]
+
+
+class MiningUpload(BaseModel):
+    """
+    导入待聚类语料
+    """
+    succeeded_count: int
+    failed_count: int
+    duplicated_count: int
+
+    def __init__(self, succeeded_count: int, failed_count: int, duplicated_count: int) -> None:
+        self.succeeded_count = succeeded_count
+        self.failed_count = failed_count
+        self.duplicated_count = duplicated_count
+
+
+class MiningExecute(BaseModel):
+    """
+    发起聚类
+    """
+    status: str
+
+    def __init__(self, status: str) -> None:
+        self.status = status
+
+
+class Sentence(BaseModel):
+    """
+    聚类簇中的句子
+    """
+    id: int
+    sentence: str
+
+    def __init__(self, id: int, sentence: str) -> None:
+        self.id = id
+        self.sentence = sentence
+
+
+class Cluster(BaseModel):
+    """
+    聚类簇
+    """
+    id: int
+    sentences: List[Sentence]
+
+    def __init__(self, id: int, sentences: List[Sentence]) -> None:
+        self.id = id
+        self.sentences = [Sentence.from_dict(sentence) for sentence in sentences]
+
+
+class MiningResult(BaseModel):
+    """
+    获取聚类结果列表
+    """
+    status: str
+    clusters: List[Cluster]
+    page_count: int
+
+    def __init__(self, status: str, clusters: List[Cluster], page_count: int) -> None:
+        self.status = status
+        self.clusters = [Cluster.from_dict(cluster) for cluster in clusters]
+        self.page_count = page_count
