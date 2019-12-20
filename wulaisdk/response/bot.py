@@ -5,7 +5,9 @@ from wulaisdk.response.msg_body import MsgBody
 
 
 class Entity(BaseModel):
-    # todo: type
+    """
+    抽取的实体
+    """
     idx_end: int
     name: str
     idx_start: int
@@ -26,6 +28,9 @@ class Entity(BaseModel):
 
 
 class QA(BaseModel):
+    """
+    问答机器人
+    """
     knowledge_id: int
     standard_question: str
     question: str
@@ -37,6 +42,9 @@ class QA(BaseModel):
 
 
 class ChitChat(BaseModel):
+    """
+    闲聊机器人
+    """
     corpus: str
 
     def __init__(self, corpus: str) -> None:
@@ -44,6 +52,9 @@ class ChitChat(BaseModel):
 
 
 class Task(BaseModel):
+    """
+    任务机器人
+    """
     block_type: str
     block_id: int
     task_id: int
@@ -64,6 +75,9 @@ class Task(BaseModel):
 
 
 class KeyWord(BaseModel):
+    """
+    关键字机器人
+    """
     keyword_id: int
     keyword: str
 
@@ -73,6 +87,9 @@ class KeyWord(BaseModel):
 
 
 class Bot(BaseModel):
+    """
+    当前触发的机器人，如果机器人回复兜底内容，则bot为空
+    """
 
     def __init__(self, **kwargs) -> None:
         if "qa" in kwargs:
@@ -90,6 +107,9 @@ class Bot(BaseModel):
 
 
 class SimilarResponse(BaseModel):
+    """
+    机器人平台手动或自动配置的推荐知识点，在机器人平台-知识库-知识点详情配置。
+    """
     url: str
     source: str
     detail: Bot
@@ -101,6 +121,9 @@ class SimilarResponse(BaseModel):
 
 
 class Response(BaseModel):
+    """
+    单条回复内容
+    """
     msg_body: MsgBody
     similar_response: List[SimilarResponse]
     enable_evaluate: bool

@@ -11,23 +11,20 @@ from wulaisdk.request import CommonRequest
 from wulaisdk.exceptions import ServerException, ClientException, ERR_INFO
 
 from requests.exceptions import ConnectionError, ConnectTimeout
-from wulaisdk.response.bot_response import BotResponse
-from wulaisdk.response.keyword_bot_response import KeywordBotResponse
-from wulaisdk.response.qa_bot_response import QABotResponse
-from wulaisdk.response.task_bot_response import TaskBotResponse
-from wulaisdk.response.sync_message import SyncMessage
-from wulaisdk.response.receive_message import ReceiveMessage
-from wulaisdk.response.history_message import HistoryMessage, SendMessage, GetUserSuggestion
-from wulaisdk.response.knowledge import KnowledgeCreate, KnowledgeUpdate, KnowledgeItems, KnowledgeTags
-from wulaisdk.response.similar_question import SimilarQuestionCreate, SimilarQuestions, SimilarQuestionUpdate
-from wulaisdk.response.user_attribute_group import CreateUserAttributeGroup, UpdateUserAttributeGroup,\
+
+from wulaisdk.response.category_user import UserUserAttribute, UserAttributes, GetUser
+from wulaisdk.response.category_talk import BotResponse, KeywordBotResponse, QABotResponse, TaskBotResponse,\
+    SyncMessage, ReceiveMessage, HistoryMessage, SendMessage, GetUserSuggestion
+from wulaisdk.response.category_knowledge import KnowledgeCreate, KnowledgeUpdate, KnowledgeItems, KnowledgeTags,\
+    SimilarQuestionCreate, SimilarQuestions, SimilarQuestionUpdate,CreateUserAttributeGroup, UpdateUserAttributeGroup,\
     UpdateUserAttributeGroupItems, CreateUserAttributeGroupAnswer, UpdateUserAttributeGroupAnswer,\
-    UserAttributeGroupAnswers, UserUserAttribute, UserAttributes, GetUser
-from wulaisdk.response.stats import StatsQASatisfactionKnowledgeDaily, StatsQARecallDaily, StatasQARecallDailyKnowledges
-from wulaisdk.response.dictionary import DictionaryEntities, DictionaryTerms, DictionaryTerm, \
+    UserAttributeGroupAnswers
+from wulaisdk.response.category_stats import StatsQASatisfactionKnowledgeDaily, StatsQARecallDaily,\
+    StatasQARecallDailyKnowledges
+from wulaisdk.response.category_dictionary import DictionaryEntities, DictionaryTerms, DictionaryTerm, \
     DictionaryEntity, CreateEnumEntity, CreateEnumEntityValue, CreateIntentEntity, CreateIntentEntityValue
-from wulaisdk.response.nlp import EntityExtract, Tokenize
-from wulaisdk.response.task import Scenes, CreateScene, UpdateScene, Intents, CreateIntent, UpdateIntent,\
+from wulaisdk.response.category_nlp import EntityExtract, Tokenize, MiningUpload, MiningExecute, MiningResult
+from wulaisdk.response.category_task import Scenes, CreateScene, UpdateScene, Intents, CreateIntent, UpdateIntent,\
     IntentTriggers, CreateIntentTrigger, UpdateIntentTrigger, Slots, CreateSlot, UpdateSlot, SlotDataSource, GetSlot,\
     CreateSlotDataSource, GetInformBlock, CreateInformBlock, UpdateInformBlock, GetRequestBlock,\
     CreateRequestBlock, UpdateRequestBlock, CreateResponse, UpdateResponse, GetEndBlock, CreateEndBlock,\
@@ -129,7 +126,7 @@ class WulaiClient:
         requests_version = requests.__version__
         request.add_headers(
             "User-Agent",
-            f"wulai-openapi-sdk-python/{self.api_version}-1.1.6 python/{py_version} requests/{requests_version}"
+            f"wulai-openapi-sdk-python/{self.api_version}-1.1.7 python/{py_version} requests/{requests_version}"
         )
 
     def get_url(self, request):
@@ -405,7 +402,7 @@ class WulaiClient:
             "recognition": str(语音识别文本结果)
             }
         }
-        图文消息
+        卡片消息
         {
         "share_link": {
             "description": str(文字描述),
@@ -414,6 +411,8 @@ class WulaiClient:
             "title"【required】: str(链接的文字标题)
             }
         }
+        图文消息
+        {"rich_text": {"resource_url"【required】: str}}
         :return:
         """
         params = {
@@ -453,7 +452,7 @@ class WulaiClient:
             "recognition": str(语音识别文本结果)
             }
         }
-        图文消息
+        卡片消息
         {
         "share_link": {
             "description": str(文字描述),
@@ -462,6 +461,8 @@ class WulaiClient:
             "title"【required】: str(链接的文字标题)
             }
         }
+        图文消息
+        {"rich_text": {"resource_url"【required】: str}}
         :return:
         """
         params = {
@@ -501,7 +502,7 @@ class WulaiClient:
             "recognition": str(语音识别文本结果)
             }
         }
-        图文消息
+        卡片消息
         {
         "share_link": {
             "description": str(文字描述),
@@ -510,6 +511,8 @@ class WulaiClient:
             "title"【required】: str(链接的文字标题)
             }
         }
+        图文消息
+        {"rich_text": {"resource_url"【required】: str}}
         :return:
         """
         params = {
@@ -549,7 +552,7 @@ class WulaiClient:
             "recognition": str(语音识别文本结果)
             }
         }
-        图文消息
+        卡片消息
         {
         "share_link": {
             "description": str(文字描述),
@@ -558,6 +561,8 @@ class WulaiClient:
             "title"【required】: str(链接的文字标题)
             }
         }
+        图文消息
+        {"rich_text": {"resource_url"【required】: str}}
         :return:
         """
         params = {
@@ -602,7 +607,7 @@ class WulaiClient:
             "recognition": str(语音识别文本结果)
             }
         }
-        图文消息
+        卡片消息
         {
         "share_link": {
             "description": str(文字描述),
@@ -611,6 +616,8 @@ class WulaiClient:
             "title"【required】: str(链接的文字标题)
             }
         }
+        图文消息
+        {"rich_text": {"resource_url"【required】: str}}
 
         bot:
         问答机器人
@@ -721,7 +728,7 @@ class WulaiClient:
             "recognition": str(语音识别文本结果)
             }
         }
-        图文消息
+        卡片消息
         {
         "share_link": {
             "description": str(文字描述),
@@ -730,6 +737,8 @@ class WulaiClient:
             "title"【required】: str(链接的文字标题)
             }
         }
+        图文消息
+        {"rich_text": {"resource_url"【required】: str}}
         :return:
         """
         params = {
@@ -798,7 +807,7 @@ class WulaiClient:
             "recognition": str(语音识别文本结果)
             }
         }
-        图文消息
+        卡片消息
         {
         "share_link": {
             "description": str(文字描述),
@@ -807,6 +816,8 @@ class WulaiClient:
             "title"【required】: str(链接的文字标题)
             }
         }
+        图文消息
+        {"rich_text": {"resource_url"【required】: str}}
         similar_response:
         [
             {
@@ -1724,6 +1735,93 @@ class WulaiClient:
         request = CommonRequest("/nlp/tokenize", params, opts)
         body = self.process_common_request(request)
         return Tokenize.from_dict(body)
+
+    def mining_upload(self, queries: list, **kwargs):
+        """
+        导入待聚类语料
+        该接口用于上传待聚类语料。语料可多次添加，再一起执行聚类。
+        如需覆盖已经导入的语料，请先调用「清空待聚类语料接口」清空语料，然后再上传新语料。
+        单次上传的上限为1千条。如果超限只截取前1千条。 发起一次聚类的语料总上限为5万。如果超限只截取前5万条。
+        :param queries: list(待聚类语料)
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "queries": queries
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/nlp/sentence/mining/upload", params, opts)
+        body = self.process_common_request(request)
+        return MiningUpload.from_dict(body)
+
+    def mining_empty(self, **kwargs):
+        """
+        清空待聚类语料
+        该接口用于清空待聚类语料库。
+        :param kwargs:
+        :return:
+        """
+        params = {}
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/nlp/sentence/mining/empty", params, opts)
+        body = self.process_common_request(request)
+        return body
+
+    def mining_execute(self, **kwargs):
+        """
+        发起聚类
+        该接口用于发起聚类请求。发起一次聚类的语料总上限为5万。
+        如果超限只截取前5万条。 在发起聚类请求后，下一步调用「获取聚类结果列表接口」查询聚类是否完成和聚类结果。
+        如果在一次聚类请求未完成时发起第二次聚类，当所有聚类完成后，「获取聚类结果列表接口」只会返回最后一次聚类的结果。
+        :param kwargs:
+        :return:
+        """
+        params = {}
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/nlp/sentence/mining/execute", params, opts)
+        body = self.process_common_request(request)
+        return MiningExecute.from_dict(body)
+
+    def mining_result(self, page: int, page_size: int, **kwargs):
+        """
+        获取聚类结果列表
+        该接口用于获取聚类结果。 如果当前最后一次请求在进行中，则返回的状态为“进行中”，结果为空。
+        如果当前最后一次请求已完成，则返回的状态为“完成”，结果为最后一次聚类的结果。
+        如果在一次聚类请求未完成时发起第二次聚类，当所有聚类完成后，接口只会返回最后一次聚类的结果。
+        :param page: int(页码)
+        :param page_size: int(每页中簇的数量)
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "page": page,
+            "page_size": page_size
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/nlp/sentence/mining/result/get", params, opts)
+        body = self.process_common_request(request)
+        return MiningResult.from_dict(body)
+
+    def delete_mining_sentence(self, sentence_id: int, **kwargs):
+        """
+        删除聚类结果
+        该接口用于删除聚类结果中的一个句子。
+        :param sentence_id: int(句子ID)
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "id": sentence_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/nlp/sentence/mining/sentence/delete", params, opts)
+        body = self.process_common_request(request)
+        return body
 
     # 任务类
     def scenes(self, **kwargs):
