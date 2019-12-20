@@ -89,6 +89,28 @@ class ShareLink(BaseModel):
         self.title = title
 
 
+class RichText(BaseModel):
+    """
+    图文消息
+    """
+    resource_url: str
+
+    def __init__(self, resource_url: str) -> None:
+        self.resource_url = resource_url
+
+
+class Event(BaseModel):
+    """
+    事件消息
+    """
+    fields: dict
+    event_type: str
+
+    def __init__(self, fields: dict, event_type: str) -> None:
+        self.fields = fields
+        self.event_type = event_type
+
+
 class MsgBody(BaseModel):
     """
     消息体格式
@@ -109,6 +131,10 @@ class MsgBody(BaseModel):
             self.voice = Voice.from_dict(kwargs.get("voice"))
         elif "share_link" in kwargs:
             self.share_link = ShareLink.from_dict(kwargs.get("share_link"))
+        elif "rich_text" in kwargs:
+            self.rich_text = RichText.from_dict(kwargs.get("rich_text"))
+        elif "event" in kwargs:
+            self.event = Event.from_dict(kwargs.get("event"))
         else:
             for k, v in kwargs.items():
                 setattr(self, k, v)

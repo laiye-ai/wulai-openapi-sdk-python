@@ -402,7 +402,7 @@ class WulaiClient:
             "recognition": str(语音识别文本结果)
             }
         }
-        图文消息
+        卡片消息
         {
         "share_link": {
             "description": str(文字描述),
@@ -411,6 +411,8 @@ class WulaiClient:
             "title"【required】: str(链接的文字标题)
             }
         }
+        图文消息
+        {"rich_text": {"resource_url"【required】: str}}
         :return:
         """
         params = {
@@ -450,7 +452,7 @@ class WulaiClient:
             "recognition": str(语音识别文本结果)
             }
         }
-        图文消息
+        卡片消息
         {
         "share_link": {
             "description": str(文字描述),
@@ -459,6 +461,8 @@ class WulaiClient:
             "title"【required】: str(链接的文字标题)
             }
         }
+        图文消息
+        {"rich_text": {"resource_url"【required】: str}}
         :return:
         """
         params = {
@@ -498,7 +502,7 @@ class WulaiClient:
             "recognition": str(语音识别文本结果)
             }
         }
-        图文消息
+        卡片消息
         {
         "share_link": {
             "description": str(文字描述),
@@ -507,6 +511,8 @@ class WulaiClient:
             "title"【required】: str(链接的文字标题)
             }
         }
+        图文消息
+        {"rich_text": {"resource_url"【required】: str}}
         :return:
         """
         params = {
@@ -546,7 +552,7 @@ class WulaiClient:
             "recognition": str(语音识别文本结果)
             }
         }
-        图文消息
+        卡片消息
         {
         "share_link": {
             "description": str(文字描述),
@@ -555,6 +561,8 @@ class WulaiClient:
             "title"【required】: str(链接的文字标题)
             }
         }
+        图文消息
+        {"rich_text": {"resource_url"【required】: str}}
         :return:
         """
         params = {
@@ -599,7 +607,7 @@ class WulaiClient:
             "recognition": str(语音识别文本结果)
             }
         }
-        图文消息
+        卡片消息
         {
         "share_link": {
             "description": str(文字描述),
@@ -608,6 +616,8 @@ class WulaiClient:
             "title"【required】: str(链接的文字标题)
             }
         }
+        图文消息
+        {"rich_text": {"resource_url"【required】: str}}
 
         bot:
         问答机器人
@@ -718,7 +728,7 @@ class WulaiClient:
             "recognition": str(语音识别文本结果)
             }
         }
-        图文消息
+        卡片消息
         {
         "share_link": {
             "description": str(文字描述),
@@ -727,6 +737,8 @@ class WulaiClient:
             "title"【required】: str(链接的文字标题)
             }
         }
+        图文消息
+        {"rich_text": {"resource_url"【required】: str}}
         :return:
         """
         params = {
@@ -795,7 +807,7 @@ class WulaiClient:
             "recognition": str(语音识别文本结果)
             }
         }
-        图文消息
+        卡片消息
         {
         "share_link": {
             "description": str(文字描述),
@@ -804,6 +816,8 @@ class WulaiClient:
             "title"【required】: str(链接的文字标题)
             }
         }
+        图文消息
+        {"rich_text": {"resource_url"【required】: str}}
         similar_response:
         [
             {
