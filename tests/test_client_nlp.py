@@ -56,7 +56,7 @@ def test_mining_upload(queries):
     client = WulaiClient(pubkey, secret, debug=True)
 
     resp = client.mining_upload(queries)
-    assert resp.succeeded_count
+    assert resp.succeeded_count or resp.duplicated_count
 
 
 # 发起聚类
@@ -78,7 +78,6 @@ def test_mining_result():
     # 聚类结束
     else:
         if resp.page_count:
-            assert resp.page_count
             sentence_ids = []
             for cluster in resp.clusters:
                 for sentence in cluster.sentences:
