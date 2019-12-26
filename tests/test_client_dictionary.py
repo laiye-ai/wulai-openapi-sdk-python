@@ -1,3 +1,6 @@
+"""
+词库管理类api测试
+"""
 import os
 import sys
 import pytest
