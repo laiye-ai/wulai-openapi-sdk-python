@@ -440,7 +440,6 @@ def test_request_block(request_block_create, request_block_update, response_crea
 
 
 # 意图终点单元
-@pytest.mark.smoke
 @pytest.mark.parametrize('end_block_create, end_block_update_1, end_block_update_2', [
     # 常规
     ({

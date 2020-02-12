@@ -1,3 +1,6 @@
+"""
+统计类api测试
+"""
 import os
 import time
 import pytest

@@ -126,7 +126,7 @@ client.delete_knowledge(knowledge_id)
 > 该接口可返回知识点相关信息，具体内容包含知识点所在分类、知识点标准问以及相似问。  
 返回的知识点范围为：调用时使用的开放平台Pubkey所属的项目(APP)中的所有知识点。
 ```
-client.knowledge_items(page, page_size)
+client.knowledge_items(page, page_size, knowledge_filter)
 ```
 
 ##### 5. 查询知识点分类列表
@@ -135,27 +135,45 @@ client.knowledge_items(page, page_size)
 client.knowledge_tags(page, page_size, parent_k_tag_id)
 ```
 
-##### 6. 创建相似问
+##### 6. 创建知识点分类
+> 新增一个知识点分类。父节点分类id如果不传值，代表创建根节点下的一级知识点分类；父节点分类id如果传值，代表创建该父节点分类下的子分类。
+```
+client.create_knowledge_tag(knowledge_tag)
+```
+
+##### 7. 更新知识点分类
+> 更新一个知识点分类。父节点分类id和知识点分类名如果不传值，代表不变更。
+```
+client.update_knowledge_tag(knowledge_tag)
+```
+
+##### 8. 删除知识点分类
+> 删除知识点分类
+```
+client.delete_knowledge_tag(knowledge_tag_id)
+```
+
+##### 9. 创建相似问
 > 该接口可创建相似问，具体内容包括相似问所关联的知识点、和相似问的内容。  
 注:只有当知识点id已经在吾来平台中创建后，才可通过该接口创建相似问。如果知识点id尚未在系统中创建，则无法成功创建相似问。
 ```
 client.create_similar_question(similar_question)
 ```
 
-##### 7. 更新相似问
+##### 10. 更新相似问
 > 该接口可创建相似问，具体内容包括相似问所关联的知识点、和相似问的内容。  
 注:只有当知识点id已经在吾来平台中创建后，才可通过该接口创建相似问。如果知识点id尚未在系统中创建，则无法成功创建相似问。
 ```
 client.update_similar_question(similar_question)
 ```
 
-##### 8. 删除相似问
+##### 11. 删除相似问
 > 该接口可删除相似问。
 ```
 client.delete_similar_question(similar_id)
 ```
 
-##### 9. 查询相似问列表
+##### 12. 查询相似问列表
 > 该接口可返回相似问的相关信息，包括相似问所关联的知识点、和相似问的内容。
  调用方可选择根据知识点查询（在请求参数中传入知识点id）、根据相似问查询（在请求参数中传入相似问id）、
  或者查询所有知识点问题（在请求参数中不传入任何filter）。
@@ -163,47 +181,47 @@ client.delete_similar_question(similar_id)
 client.similar_questions(page, page_size, knowledge_id, similar_question_id)
 ```
 
-##### 10. 创建属性组
+##### 13. 创建属性组
 > 该接口用于创建属性组，具体内容包括属性组名称，及构成该属性组的用户属性和属性值。
 ```
 client.create_user_attribute_group_items(user_attribute_group_item)
 ```
 
-##### 11. 更新属性组
+##### 14. 更新属性组
 > 该接口用于更新属性组，具体内容包括属性组名称，及构成该属性组的用户属性和属性值。
 ```
 client.update_user_attribute_group_items(user_attribute_group_item)
 ```
 
-##### 12.查询属性组及属性列表
+##### 15.查询属性组及属性列表
 > 该接口可返回属性组相关信息，包括属性组名称、属性组内所包含的属性和属性值。  
 返回的范围为：调用时使用的开放平台Pubkey所属的项目(APP)中的所有属性组。
 ```
 client.user_attribute_group_items(page, page_size)
 ```
 
-##### 13. 创建属性组回复
+##### 16. 创建属性组回复
 > 该接口可创建属性组回复，具体内容包括属性组回复所关联的知识点、和属性组回复的消息内容。  
 注:只有当知识点id已经在吾来平台中创建后，才可通过该接口创建属性组回复。如果知识点id尚未在系统中创建，则无法成功创建属性组回复
 ```
 client.create_user_attribute_group_answer(user_attribute_group_answer)
 ```
 
-##### 14. 更新属性组回复
+##### 17. 更新属性组回复
 > 该接口可更新属性组回复，具体内容包括属性组回复所关联的知识点、和属性组回复的消息内容。  
 注:如需更新知识点的通用答案（不区分属性组），则 user_attribute_group_id 传入0.
 ```
 client.update_user_attribute_group_answer(user_attribute_group_answer)
 ```
 
-##### 15. 查询属性组回复列表
+##### 18. 查询属性组回复列表
 > 该接口可返回属性组回复相关信息，包括属性组回复所关联的知识点、和属性组回复的消息内容。调用方可选择根据知识点查询（在请求参数中传入知识点id）、根据属性组查询（在请求参数中传入属性组id）、
 或者查询所有属性组回复（在请求参数中不传入任何filter）。
 ```
 client.user_attribute_group_answers(page, page_size, kn_filter)
 ```
 
-##### 16. 删除属性组回复
+##### 19. 删除属性组回复
 > 该接口用于删除一条属性组的回复。
 ```
 client.delete_user_attribute_group_answer(uaga_id)
@@ -572,4 +590,11 @@ client.delete_intent_trigger_learning(msg_id)
 > 将意图生效或者下线，同时需要指定意图的第一个单元。
 ```
 client.update_intent_status(status, first_block_id, intent_id)
+```
+
+### 配置类
+##### 1. 更新机器人回复配置
+> 更新机器人配置。
+```
+client.update_config(app_config)
 ```
