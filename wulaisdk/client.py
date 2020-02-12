@@ -18,7 +18,7 @@ from wulaisdk.response.category_talk import BotResponse, KeywordBotResponse, QAB
 from wulaisdk.response.category_knowledge import KnowledgeCreate, KnowledgeUpdate, KnowledgeItems, KnowledgeTags,\
     SimilarQuestionCreate, SimilarQuestions, SimilarQuestionUpdate,CreateUserAttributeGroup, UpdateUserAttributeGroup,\
     UpdateUserAttributeGroupItems, CreateUserAttributeGroupAnswer, UpdateUserAttributeGroupAnswer,\
-    UserAttributeGroupAnswers
+    UserAttributeGroupAnswers, KnowledgeTagCreate, KnowledgeTagUpdate, KnowledgeBatchCreate
 from wulaisdk.response.category_stats import StatsQASatisfactionKnowledgeDaily, StatsQARecallDaily,\
     StatasQARecallDailyKnowledges
 from wulaisdk.response.category_dictionary import DictionaryEntities, DictionaryTerms, DictionaryTerm, \
@@ -29,9 +29,11 @@ from wulaisdk.response.category_task import Scenes, CreateScene, UpdateScene, In
     CreateSlotDataSource, GetInformBlock, CreateInformBlock, UpdateInformBlock, GetRequestBlock,\
     CreateRequestBlock, UpdateRequestBlock, CreateResponse, UpdateResponse, GetEndBlock, CreateEndBlock,\
     UpdateEndBlock, CreateBlockRelation, IntentTriggerLearning, UpdateIntentStatus, Blocks
+from wulaisdk.response.category_config import UpdateConfig
 
 
 DEBUG = False
+SDK_VERSION = "1.1.8"
 
 logger = logging.getLogger(__name__)
 formatter = logging.Formatter('%(asctime)s %(process)d %(thread)d %(levelname)s %(message)s')
@@ -126,7 +128,7 @@ class WulaiClient:
         requests_version = requests.__version__
         request.add_headers(
             "User-Agent",
-            f"wulai-openapi-sdk-python/{self.api_version}-1.1.7 python/{py_version} requests/{requests_version}"
+            f"wulai-openapi-sdk-python/{self.api_version}-{SDK_VERSION} python/{py_version} requests/{requests_version}"
         )
 
     def get_url(self, request):
@@ -996,16 +998,26 @@ class WulaiClient:
         body = self.process_common_request(request)
         return body
 
-    def knowledge_items(self, page: int, page_size: int, **kwargs):
+    def knowledge_items(self, page: int, page_size: int, knowledge_filter=None, **kwargs):
         """
         查询知识点列表
         该接口可返回知识点相关信息，具体内容包含知识点所在分类、知识点标准问以及相似问。
         返回的知识点范围为：调用时使用的开放平台Pubkey所属的项目(APP)中的所有知识点。
+        Filter字段如果不传入，则返回所有知识点。
+        Filter.knowledge_tag_id 字段如果传入，返回该分类下的所有知识点, 但不包含该分类的子分类下的知识点。
+        Filter.knowledge_id 和 Filter.knowledge_tag_id 如果同时传入，则返回两个条件都满足的知识点。
+        因此，如果传入的 knowledge_id 所代表的知识点不属于传入的 knowledge_tag_id 所代表的知识点分类，则不会返回任何结果。
         :param page: int (页码，代表查看第几页的数据)
         :param page_size: int (每页的知识点数量)
+        :param knowledge_filter: dict (过滤条件)
+        {
+            "knowledge_id": str(知识点id，如不填写，返回所有知识点)
+            "knowledge_tag_id": str(知识点分类id，如不填写，返回所有知识点分类下知识点)
+        }
         :return:
         """
         params = {
+            "filter": knowledge_filter,
             "page": page,
             "page_size": page_size,
         }
@@ -1014,6 +1026,122 @@ class WulaiClient:
         request = CommonRequest("/qa/knowledge-items/list", params, opts)
         body = self.process_common_request(request)
         return KnowledgeItems.from_dict(body)
+
+    def batch_create_knowledge(self, knowledge_items: list, **kwargs):
+        """
+        批量添加知识点列表
+        批量添加知识点列表
+        :param knowledge_items: list (知识点)
+        [{
+            "knowledge_tag": dict(知识点分类),
+            "similar_questions": list(相似问详情),
+            "user_attribute_group_answers": list(属性组),
+            "knowledge": dict(知识点详情),
+        }, ...]
+        knowledge_tag:
+        {
+            "parent_knowledge_tag_id"【required】: str(父节点分类id),
+            "id"【required】: str(知识点分类id),
+            "name"【required】: str(知识点分类名)
+        }
+        similar_questions:
+        [{
+            "knowledge_id"【required】: str(知识点id),
+            "question"【required】: str(相似问), <= 100characters
+            "id": str(相似问id)
+        }, ...]
+        user_attribute_group_answers:
+        [{
+            "answer"【required】: (回复){
+                "knowledge_id"【required】: str(知识点id),
+                "msg_body"【required】: dict(消息体格式，任意选择一种消息类型（文本 / 图片 / 语音 / 视频 / 文件 / 图文 / 自定义消息）填充)
+            }，
+            "user_attribute_group_id"【required】: str(属性组 id。
+                当 id 为0时，表示该不区分属性组。使用属性组 id 为0添加的回复，是知识点的通用答案。)
+        }]
+        knowledge:
+        {
+            "status"【required】: bool(知识点状态),
+                            True: 已生效
+                            False: 未生效
+            "update_time": str(修改时间，秒级时间戳),
+            "maintained_by_user_attribute_group"【required】: bool(该属性是否被用于定义属性组),
+                            True：该属性是定义属性组所使用的属性之一
+                            False：该属性不被用于定义属性组
+            "standard_question"【required】: str(知识点标题),
+            "create_time": str(创建时间，秒级时间戳),
+            "respond_all"【required】: bool(是否发送全部回复),
+                            True：发送全部回复
+                            False：随机一条发送
+            "id": str(知识点id)
+        }
+        :return:
+        """
+        params = {
+            "knowledge_items": knowledge_items
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/qa/knowledge-items/batch-create", params, opts)
+        body = self.process_common_request(request)
+        return KnowledgeBatchCreate.from_dict(body)
+
+    def create_knowledge_tag(self, knowledge_tag: dict, **kwargs):
+        """
+        创建知识点分类
+        新增一个知识点分类。父节点分类id如果不传值，代表创建根节点下的一级知识点分类；父节点分类id如果传值，代表创建该父节点分类下的子分类。
+        :param knowledge_tag: dict (知识点分类)
+        {
+            "parent_knowledge_tag_id"【required】: str (父节点分类id)
+            "id"【required】: str(知识点分类id)
+            "name"【required】: str(知识点分类名)
+        }
+        :return:
+        """
+        params = {
+            "knowledge_tag": knowledge_tag
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/qa/knowledge-tag/create", params, opts)
+        body = self.process_common_request(request)
+        return KnowledgeTagCreate.from_dict(body)
+
+    def update_knowledge_tag(self, knowledge_tag: dict, **kwargs):
+        """
+        更新知识点分类
+        更新一个知识点分类。父节点分类id和知识点分类名如果不传值，代表不变更。
+        :param knowledge_tag: dict (知识点分类)
+        {
+            "id"【required】: str(知识点分类id)
+            "name"【required】: str(知识点分类名)
+        }
+        :return:
+        """
+        params = {
+            "knowledge_tag": knowledge_tag
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/qa/knowledge-tag/update", params, opts)
+        body = self.process_common_request(request)
+        return KnowledgeTagUpdate.from_dict(body)
+
+    def delete_knowledge_tag(self, knowledge_tag_id: int, **kwargs):
+        """
+        删除知识点分类
+        删除知识点分类
+        :param knowledge_tag_id: int (知识点分类id)
+        :return:
+        """
+        params = {
+            "id": knowledge_tag_id
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/qa/knowledge-tag/delete", params, opts)
+        body = self.process_common_request(request)
+        return body
 
     def knowledge_tags(self, page: int, page_size: int, parent_k_tag_id: str=None, **kwargs):
         """
@@ -2780,3 +2908,51 @@ class WulaiClient:
         body = self.process_common_request(request)
         return UpdateIntentStatus.from_dict(body)
 
+    # 配置类
+    def update_config(self, app_config: dict, **kwargs):
+        """
+        更新机器人回复配置
+        更新机器人配置。
+        :param app_config: dict (机器人配置)
+        {
+            "bot_config": dict(对话配置),
+            "default_response_config": dict(兜底回复配置),
+            "customer_service_config": dict(转人工配置)
+        }
+        bot_config:
+        {
+            # 问答对话配置
+            "qa_bot_config": {
+                "similar_response_enabled": bool(机器人回复是否包含推荐知识点),
+                                        False：不包含
+                                        True：包含
+                "auto_response_threshold": float(问答对话的回复阈值) <= 1
+            },
+            # 任务对话配置
+            "task_bot_config": {
+                "auto_response_threshold": float(任务对话的回复阈值) <= 1
+            }
+        }
+        default_response_config:
+        {
+            "enabled": bool(兜底回复开关)
+                    False：关闭
+                    True：开启
+        }
+        customer_service_config:
+        {
+            "enabled": bool(是否转人工)
+                    False：关闭
+                    True：开启
+        }
+        :param kwargs:
+        :return:
+        """
+        params = {
+            "app_config": app_config
+        }
+        opts = self.opts_create(kwargs)
+
+        request = CommonRequest("/config/update", params, opts)
+        body = self.process_common_request(request)
+        return UpdateConfig.from_dict(body)

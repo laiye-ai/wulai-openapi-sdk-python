@@ -145,6 +145,26 @@ class KnowledgeTags(BaseModel):
         self.page_count = page_count
 
 
+class KnowledgeTagCreate(BaseModel):
+    """
+    创建知识点分类
+    """
+    knowledge_tag: KnowledgeTag
+
+    def __init__(self, knowledge_tag: KnowledgeTag) -> None:
+        self.knowledge_tag = KnowledgeTag.from_dict(knowledge_tag)
+
+
+class KnowledgeTagUpdate(BaseModel):
+    """
+    更新知识点分类
+    """
+    knowledge_tag: KnowledgeTag
+
+    def __init__(self, knowledge_tag: KnowledgeTag) -> None:
+        self.knowledge_tag = KnowledgeTag.from_dict(knowledge_tag)
+
+
 # 相似问
 class SimilarQuestionCreate(BaseModel):
     """
@@ -328,3 +348,32 @@ class UserAttributeGroupAnswers(BaseModel):
             UserAttributeGroupAnswer.from_dict(uaga) for uaga in user_attribute_group_answers
         ]
         self.page_count = page_count
+
+
+class KnowledgeRelatedItem(BaseModel):
+    """
+    知识点（包含属性组信息）
+    """
+    knowledge_tag: KnowledgeTag
+    similar_questions: List[SimilarQuestion]
+    user_attribute_group_answers: List[UserAttributeGroupAnswer]
+    knowledge: Knowledge
+
+    def __init__(self, knowledge_tag: KnowledgeTag, similar_questions: List[SimilarQuestion],
+                 user_attribute_group_answers: List[UserAttributeGroupAnswer], knowledge: Knowledge) -> None:
+        self.knowledge_tag = KnowledgeTag.from_dict(knowledge_tag)
+        self.similar_questions = [SimilarQuestion.from_dict(similar_question) for similar_question in similar_questions]
+        self.user_attribute_group_answers = [
+            UserAttributeGroupAnswer.from_dict(uaga) for uaga in user_attribute_group_answers
+        ]
+        self.knowledge = Knowledge.from_dict(knowledge)
+
+
+class KnowledgeBatchCreate(BaseModel):
+    """
+    批量添加知识点列表
+    """
+    knowledge_related_items: List[KnowledgeRelatedItem]
+
+    def __init__(self, knowledge_related_items: List[KnowledgeRelatedItem]) -> None:
+        self.knowledge_related_items = [KnowledgeRelatedItem.from_dict(kri) for kri in knowledge_related_items]

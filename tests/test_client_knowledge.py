@@ -9,7 +9,6 @@ import sys
 
 from wulaisdk.client import WulaiClient
 
-
 pubkey = os.getenv("PUBKEY", "")
 secret = os.getenv("SECRET", "")
 log_dir_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,6 +30,37 @@ def find_value_from_dict_array(li, search_key, value_key, reference):
 
 
 # knowledge test
+# create/update/delete knowledge tags
+@pytest.mark.parametrize('knowledge_tag_create, knowledge_tag_update, knowledge_tag_child', [
+    [{
+        "id": "1325698",  # 指定无效，但不会报错
+        "name": "测试知识点分类创建"
+    }, {"name": "测试知识点分类更新"}, {"name": "测试知识点分类创建-子"}]
+])
+def test_knowledge_tags_new(knowledge_tag_create, knowledge_tag_update, knowledge_tag_child):
+    client = WulaiClient(pubkey, secret, debug=True)
+
+    knowledge_tag_c = client.create_knowledge_tag(knowledge_tag_create)
+    knowledge_tag_id = knowledge_tag_c.knowledge_tag.id
+
+    assert knowledge_tag_id
+    assert knowledge_tag_c.knowledge_tag.name
+    assert knowledge_tag_c.knowledge_tag.parent_knowledge_tag_id
+
+    # 创建子分类
+    knowledge_tag_child["parent_knowledge_tag_id"] = knowledge_tag_id
+    client.create_knowledge_tag(knowledge_tag_child)
+
+    knowledge_tag_update["id"] = knowledge_tag_id
+    knowledge_tag_u = client.update_knowledge_tag(knowledge_tag_update)
+
+    assert knowledge_tag_u.knowledge_tag.id
+    assert knowledge_tag_u.knowledge_tag.name
+    assert knowledge_tag_u.knowledge_tag.parent_knowledge_tag_id
+
+    client.delete_knowledge_tag(knowledge_tag_id)
+
+
 def knowledge_c_timeupdate(k):
     new = copy.deepcopy(k)
     new["knowledge"]["standard_question"] += f"_{time.strftime('%Y-%m-%d/%H:%M:%S',time.localtime())}"
@@ -94,6 +124,10 @@ def test_knowledge_tags(page, page_size, knowledge_c, knowledge_u):
     resp_knowledge_u = client.update_knowledge(knowledge_u)
 
     # items
+    # 过滤查询
+    resp_knowledges = client.knowledge_items(page, page_size=50, knowledge_filter={"knowledge_tag_id": target_id})
+    assert resp_knowledges.to_dict()
+    # 无条件查询
     resp = client.knowledge_items(page, page_size=10)
 
     assert resp_knowledge_u.knowledge.id == knowledge_id
@@ -183,9 +217,10 @@ user_attribute_group_answer_update_1 = {
 
 @pytest.mark.parametrize('user_attribute_group_item,user_attribute_group_item_update,user_attribute_group_answer,'
                          'user_attribute_group_answer_update,page,page_size', [
-    (user_attribute_group_item_1, user_attribute_group_item_update_1, user_attribute_group_answer_1,
-     user_attribute_group_answer_update_1, 1, 50),
-])
+                             (user_attribute_group_item_1, user_attribute_group_item_update_1,
+                              user_attribute_group_answer_1,
+                              user_attribute_group_answer_update_1, 1, 50),
+                         ])
 def test_user_attribute(user_attribute_group_item, user_attribute_group_item_update, user_attribute_group_answer,
                         user_attribute_group_answer_update, page, page_size):
     # 属性组测试知识点分类id：125537，知识点id： 1048247
@@ -231,3 +266,60 @@ def test_user_attribute(user_attribute_group_item, user_attribute_group_item_upd
 
     # 删除属性组回复
     resp = client.delete_user_attribute_group_answer(user_attribute_group_answer_id)
+
+
+knowledge_items = [
+    {
+        "knowledge_tag": {
+            "parent_knowledge_tag_id": "57247",
+            "id": "117858",
+            "name": "测试_yt"
+        },
+        "similar_questions": [
+            {
+                # "knowledge_id": "2321501",
+                "question": "相似问111",
+                # "id": "20835353"
+            }
+        ],
+        "user_attribute_group_answers": [
+            {
+                "answer": {
+                    # "knowledge_id": "2321501",
+                    "msg_body": {
+                        "text": {
+                            "content": "测试文本消息"
+                        }
+                    }
+                },
+                "user_attribute_group_id": "0"
+            }
+        ],
+        "knowledge": {
+            "status": True,
+            "update_time": str(int(time.time())),
+            "maintained_by_user_attribute_group": False,
+            "standard_question": "批量添加1",
+            "respond_all": True,
+            # "id": "2321501"
+        }
+    }
+]
+
+
+# 批量添加知识点
+# batch_create_knowledge
+@pytest.mark.parametrize('knowledge_items', [
+    knowledge_items
+])
+def test_knowledge_tags(knowledge_items):
+    client = WulaiClient(pubkey, secret, debug=True)
+
+    resp = client.batch_create_knowledge(knowledge_items)
+
+    assert resp.to_dict()
+    knowledge_id = resp.knowledge_related_items[0].knowledge.id
+    knowledge_tag_id = resp.knowledge_related_items[0].knowledge_tag.id
+    assert knowledge_tag_id
+
+    client.delete_knowledge(knowledge_id)

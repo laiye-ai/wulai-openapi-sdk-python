@@ -88,10 +88,10 @@ def test_create_user_attribute(user_attribute_user_attribute_value, user_id):
 
 # createUserUserAttribute test
 # 注：接口功能同上create_user_attribute，不小心创建重复
+# @pytest.mark.smoke
 @pytest.mark.parametrize('user_id,user_attribute_user_attribute_value,expected', [
     ("shierlou", [
-        {"user_attribute": {"id": "101343"}, "user_attribute_value": {"name": "新用户"}},
-        {"user_attribute": {"id": "101344"}, "user_attribute_value": {"name": "小区a"}},
+        {"user_attribute": {"id": "101634"}, "user_attribute_value": {"name": "man"}}
     ], {}),
 ])
 def test_create_user_user_attribute_normal(user_id, user_attribute_user_attribute_value, expected):
