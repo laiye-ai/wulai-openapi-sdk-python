@@ -1,3 +1,8 @@
+### version 1.1.9
+#### updated 20200227
+1. WulaiClient类配置参数中新增global_timeout，默认为5s，是全局的超时时间配置。该参数可被具体的api下的timeout参数重置。
+2. 更新api使用文档，提示global_timeout及timeout的配置方式。
+
 ### version 1.1.8
 #### updated 20200212
 1. 新增5个api："创建知识点分类、更新知识点分类、删除知识点分类、批量添加知识点列表、更新机器人回复配置"

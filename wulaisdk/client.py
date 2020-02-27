@@ -33,7 +33,7 @@ from wulaisdk.response.category_config import UpdateConfig
 
 
 DEBUG = False
-SDK_VERSION = "1.1.8"
+SDK_VERSION = "1.1.9"
 
 logger = logging.getLogger(__name__)
 formatter = logging.Formatter('%(asctime)s %(process)d %(thread)d %(levelname)s %(message)s')
@@ -45,7 +45,7 @@ logger.addHandler(handler)
 class WulaiClient:
     def __init__(self, pubkey: str, secret: str, endpoint: str="https://openapi.wul.ai",
                  api_version: str="v2", debug: bool=False, pool=None, pool_connections: int=10, pool_maxsize: int=10,
-                 max_retries: int=3):
+                 max_retries: int=3, global_timeout=5):
         """
         client
         :param pubkey:
@@ -58,6 +58,7 @@ class WulaiClient:
         :param pool_connections:
         :param pool_maxsize:
         :param max_retries:
+        :param global_timeout: Basic timeout setting for each api and could be reset in specific api. Default: 5 seconds.
         """
         self.pubkey = pubkey
         self.secret = secret
@@ -66,6 +67,7 @@ class WulaiClient:
         self.pool_connections = pool_connections
         self.pool_maxsize = pool_maxsize
         self.max_retries = max_retries
+        self.global_timeout = global_timeout
         self._http = pool or self.connection_pool_init(self.endpoint, self.pool_connections, self.pool_maxsize,
                                                        self.max_retries)
         global DEBUG
@@ -215,12 +217,19 @@ class WulaiClient:
         logger.debug("Response received. Action: {}. Response-body: {}".format(request.action, body))
         return body
 
-    @staticmethod
-    def opts_create(di: dict):
+    def opts_create(self, opt_config: dict):
+        """
+        基础配置，opt_config中主要包含：
+        method【str】：请求方法，默认"POST"，暂时只支持"GET"和"POST"
+        retry【int】：重试次数，默认2
+        timeout【int】：超时时间，默认global_timeout
+        :param opt_config:
+        :return:
+        """
         opts = {
-            "method": di.get("method", "POST"),
-            "retry": di.get("retry", 2),
-            "timeout": di.get("timeout", 3)
+            "method": opt_config.get("method", "POST"),
+            "retry": opt_config.get("retry", 2),
+            "timeout": opt_config.get("timeout", self.global_timeout)
         }
         return opts
 
