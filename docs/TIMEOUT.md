@@ -12,15 +12,17 @@ from wulaisdk.client import WulaiClient
 pubkey = "your pubkey"
 secret = "your secret"
 
-client = WulaiClient(pubkey, secret)
-user_id = "test_user"
+# client统一定义超时时间-global_timeout默认5s
+client = WulaiClient(pubkey, secret, global_timeout=10)
 
+user_id = "test_user"
 opts = {
     "method": "POST",
     "retry": 2,
-    "timeout": 3
+    "timeout": 3  # 为当前api单独定义超时时间
 }
 resp = client.create_user(user_id, **opts)
+# resp = client.create_user(user_id, timeout=3)
 ```
 2. 使用CommonRequest
 ```python
